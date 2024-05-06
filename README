@@ -1,0 +1,34 @@
+WAZNE: Po restarcie maszyny trzeba uruchomic skrypt "run.sh" - sprawdza on, czy wszystkie uslugi dzialaja i jesli nie, to wtedy je uruchamia.
+Problem jest taki, ze na openSUSE nie mozna pobrac jedenj paczki i nie wiem, czy to przez to, czy nie ale cos nie chcialo build'owac ;P dlatego 
+plik .kpxe (BIOSowy) robilem na ubuntu.
+
+
+Zeby zmienic IP trzeba podmienic go w plikach:
+
+	/etc/dhcpd.conf
+	/pxe-boot/main.ipxe
+	
+	/pxe-boot/Installers/Windows/Win10/install.bat
+	/pxe-boot/Installers/Windows/Win11/install.bat	
+
+	i wygenerowac nowy plik ipxe.efi (https://rpi4cluser.com/pxe/ipxe)
+
+Dodatkowo w 
+	/pxe-files/Installers/Windows/Win10/install.bat
+i
+	/pxe-files/Installers/Windows/Win11/install.bat
+trzeba zmienic nazwe udzialu i user/password (teraz jest /user:suse admin).
+
+By zmienic haslo/dodac uzytkownika do SAMBY trzeba uzyc
+	
+	#----- Zmiana Hasla -----
+	smbpasswd -a *haslo* *user* (user musi byc dodany do systemu!)
+
+By zmienic dane do CloneZilli, nalezy edytowac plik
+
+	/pxe-boot/ipxe-files/clone.ipxe
+
+na koncu lini "kernel" sa dane do automatycznego laczenia z serwerem NFS, na ktory beda zapisywane obrazy, lub z ktorego te obrazy
+beda odczytywane.
+
+TODO: Skrypt do konfiguracji iPXE
