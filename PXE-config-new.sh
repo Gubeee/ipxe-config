@@ -110,8 +110,7 @@ function root_folder(){
 
 # Creating files tree
 function file_tree(){
-    clear
-
+    clear 
     echo "Creating files tree. Please wait..."
     mkdir $path
     mkdir $path/Installers
@@ -123,9 +122,7 @@ function file_tree(){
     mkdir $path/ipxe-files
     mkdir $path/Other
     mkdir $path/Other/ipxe
-
     read -n 1 -r -s -p $"Tree successfully created. Press ENTER to continue..."
-
 }
 
 # DHCP Configuration
@@ -149,7 +146,7 @@ function dhcp_config(){
             read -p "Enter a network address: " net
             if [[ $net =~ ^([01]?[0-9][0-9]?|2[0-4][0-9]|25[0-5])\.([01]?[0-9][0-9]?|2[0-4][0-9]|25[0-5])\.([01]?[0-9][0-9]?|2[0-4][0-9]|25[0-5])\.0$ ]]
             then
-                echo "Correct IP"
+                echo "Correct IP."
             else
                 echo "Invalid IP."
                 sleep 3
@@ -160,24 +157,67 @@ function dhcp_config(){
         while [ -z "$gate" ]
         do
             read -p "Enter a gateway address: " gate
+            if [[ $gate =~ ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$ ]]
+            then
+                echo "Correct address."
+            else
+                echo "Invalid address."
+                sleep 3
+                gate=""
+            fi
         done
         # If content of 'mask' is empty then loop is working until 'mask' have an content inside
         while [ -z "$mask" ]
         do
             read -p "Enter a network mask: " mask
+            if [[ $mask =~ ^(255\.){3}(255|254|252|248|240|224|192|128|0)$|^255\.(255|254|252|248|240|224|192|128|0)\.0\.0$|^255\.255\.(255|254|252|248|240|224|192|128|0)\.0$|^255\.255\.255\.(255|254|252|248|240|224|192|128|0)$ ]]
+            then
+                echo "Correct Netmask."
+            else
+                echo "Invalid network mask!."
+                sleep 3
+                mask=""
+            fi
         done
         # If content of 'srv' is empty then loop is working until 'srv' have an content inside
         while [ -z "$srv" ]
         do
             read -p "Enter a server address: " srv
+            if [[ $srv =~ ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$ ]]
+            then
+                echo "Correct address."
+            else
+                echo "Invalid address."
+                sleep 3
+                srv=""
+            fi
         done
-        read -p "Enter range of DHCP addresses (ie. 192.168.50.3 192.168.50.254): " range
+        while [ -z "$range" ]
+        do
+            read -p "Enter range of DHCP addresses (ie. 192.168.50.3 192.168.50.254): " range
+            if [[ $range =~ ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])[[:space:]]+(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$ ]]
+            then
+                echo "Correct range."
+            else
+                echo "Invalid range."
+                sleep 3
+                range=""
+            fi
+        done
         # DNS Question
         read -p "By default DNS server is 8.8.8.8. Do you want to change DNS server IP? (Y/N): " choise
         if [ $choise == "Y" ] || [ $choise == "y" ] || [ $choise == "T" ] || [ $choise == "t" ]
         then
             read -p "Enter DNS address: " usr_dns
-            dns=$usr_dns
+            if [[ $usr_dns =~ ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$ ]]
+            then
+                echo "Correct DNS address."
+                dns=$usr_dns
+            else
+                echo "Invalid address."
+                sleep 3
+                dns=""
+            fi
         elif [ $choise == "N" ] || [ $choise == "n" ] || [ -z $choise ]
         then
             dns="8.8.8.8"
@@ -186,6 +226,7 @@ function dhcp_config(){
             sleep 3
             #dhcp_config
         fi 
+        # 'next-server' IP address = server address
         next=$srv
         # Looking for ethernet adapter which have the same IP address as DHCP server
         for iface in $(ip -br -4 addr sh | awk '$3 != "127.0.0.1/8" {print $1}')
@@ -459,7 +500,8 @@ function ipxe_config(){
                 # Script is checking if 'bg.png' file is present. It depends on earlier user choise.
                 if [ -e $path/Other/bg.png ]
                 then
-                    echo "console --x 1024 --y 768 --picture http://${srv}/Other/bg.png" >> $path/ipxe-files/main.ipxe
+                    echo "console --x 1024 --y 768"
+                    echo "console --picture http://${srv}/Other/bg.png" >> $path/ipxe-files/main.ipxe
                 fi
 
                 echo ":menu" >> $path/ipxe-files/main.ipxe
@@ -665,7 +707,7 @@ function pack_down(){
     clear
     echo "Refresing and updating zypper..."
     zypper ref
-    zypper up 
+    zypper up -y
     clear
     echo "Downloading packages required for iPXE..."
     zypper in -y make gcc binutils perl mtools mkisofs syslinux liblzma5
@@ -785,3 +827,5 @@ function invalid_param_misc_options(){
     sleep 3
     misc_options
 }
+
+intro
