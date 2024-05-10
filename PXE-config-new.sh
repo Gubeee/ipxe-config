@@ -171,6 +171,7 @@ function dhcp_config(){
         do
             read -p "Enter a server address: " srv
         done
+        read -p "Enter range of DHCP addresses (ie. 192.168.50.3 192.168.50.254): " range
         # DNS Question
         read -p "By default DNS server is 8.8.8.8. Do you want to change DNS server IP? (Y/N): " choise
         if [ $choise == "Y" ] || [ $choise == "y" ] || [ $choise == "T" ] || [ $choise == "t" ]
