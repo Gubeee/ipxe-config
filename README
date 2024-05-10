@@ -1,34 +1,63 @@
-WAZNE: Po restarcie maszyny trzeba uruchomic skrypt "run.sh" - sprawdza on, czy wszystkie uslugi dzialaja i jesli nie, to wtedy je uruchamia.
-Problem jest taki, ze na openSUSE nie mozna pobrac jedenj paczki i nie wiem, czy to przez to, czy nie ale cos nie chcialo build'owac ;P dlatego 
-plik .kpxe (BIOSowy) robilem na ubuntu.
+---------- Windows Lack of Technology :D ----------
 
+Because of Microsoft's brilliant technological thought I didn't find a good way to download latest .iso files of both Windows 10 and 11. For now you HAVE TO download them manually and put successivly in:
 
-Zeby zmienic IP trzeba podmienic go w plikach:
+	Windows 10 installation files - /home/$USER/PXE-DATA/Win10
+	Windows 11 installation files - /home/$USER/PXE-DATA/Win11
 
-	/etc/dhcpd.conf
-	/pxe-boot/main.ipxe
-	
-	/pxe-boot/Installers/Windows/Win10/install.bat
-	/pxe-boot/Installers/Windows/Win11/install.bat	
+Same thing with 'boot.wim' file - it SHOULD BE in /home/$USER/PXE-DATA/ folder. But what exactly 'boot.wim' file is? 
+'boot.wim' file is kinda (???) universal Windows bootloader. You can use it with Windows 10 and Windows 11, and it is loaded by ipxe's 'wimboot' file. 'wimboot' is loading 'boot.wim' and then Windows Preinstalation Enviroment is loaded.
 
-	i wygenerowac nowy plik ipxe.efi (https://rpi4cluser.com/pxe/ipxe)
+To get 'boot.wim' file you have to follow Microsoft's Official Documentation(https://learn.microsoft.com/pl-pl/windows-hardware/manufacture/desktop/download-winpe--windows-pe?view=windows-11) and - one more time - because of Microsoft's brilliant technological thought, you have to edit one scritp (https://777notes.wordpress.com/2013/10/21/winpe-the-following-processor-architecture-was-not-found-amd64/).
 
-Dodatkowo w 
-	/pxe-files/Installers/Windows/Win10/install.bat
-i
-	/pxe-files/Installers/Windows/Win11/install.bat
-trzeba zmienic nazwe udzialu i user/password (teraz jest /user:suse admin).
+If you have any problems with script or other things that are needed to script work feel free to contact me via email: gubisiowy@gmail.com.
 
-By zmienic haslo/dodac uzytkownika do SAMBY trzeba uzyc
-	
-	#----- Zmiana Hasla -----
-	smbpasswd -a *haslo* *user* (user musi byc dodany do systemu!)
+PXE-DATA tree should look the same as below:
 
-By zmienic dane do CloneZilli, nalezy edytowac plik
+PXE-DATA
+|
+--- bg.png
+|
+--- boot.wim
+|
+--- Win10
+|   |
+|   --- Windows 10 installation files
+|
+--- Win11
+|   |
+|   --- Windows 11 installation files
 
-	/pxe-boot/ipxe-files/clone.ipxe
+If there is not Windows 10 or 11 installation files, script will not work unless I'll find a good way to download .iso from Official Servers. Then whole script will be changed.
 
-na koncu lini "kernel" sa dane do automatycznego laczenia z serwerem NFS, na ktory beda zapisywane obrazy, lub z ktorego te obrazy
-beda odczytywane.
+---------- iPXE And .efi and .kpxe file ----------
 
-TODO: Skrypt do konfiguracji iPXE
+For now, script is working only on openSUSE. Because of this there is no way to generate 'undionly.kpxe' file for iPXE BIOS support because there is missing one - yes, ONLY ONE - package for generate 'undionly.kpxe' file. If you want to run PXE boot with BIOS only systems, you have to generate this file on Ubuntu (I checked that but I don't know if this method is working on other distros. You can check that and let me know, I'll update README file LMAO). Just follow this steps
+
+	1. Clone iPXE github repo
+	2. Then cd to path where repo is and go to /ipxe/src catalog
+	3. Run this command:
+		apt install -y make gcc binutils perl mtools mkisofs syslinux liblzma-dev isolinux
+	4. create 'embed.ipxe' file in /ipxe/src catalog and write this:
+		#!ipxe
+		dhcp && goto netboot || goto dhcperror
+
+		:dhcperror
+		prompt --key s --timeout 10000 DHCP failed, hit 's' for the iPXE shell; reboot in 10 seconds && shell || reboot
+
+		:netboot
+		chain tftp://${srv}/main.ipxe ||
+		prompt --key s --timeout 10000 Chainloading failed, hit 's' for the iPXE shell; reboot in 10 seconds && shell || reboot
+
+		IMPORTANT: replace ${srv} with IP address of next-server IP (Prefered to be the same address as your PXE server).
+	5. After that just write:
+		make bin/undionly.kpxe EMBED=embed.ipxe
+	   Wait a moment and when file has been made simply copy/move to your PXE root folder (default: /pxe-boot) and everything should work.
+
+Maybe, one day, I'll find out how to generate this file under openSUSE or something.
+
+And one more thing - if you made a mistake while writing something ie. while writing IP address it's prefered to re-run script. Because later this IP address is present in '.efi', '.kpxe', DHCP, NFS files so it'll be easier to write it one more time than correcting and generating all files.
+
+I think that's all. One more time - if you have any questions - feel free to ask. My email address: gubisiowy@gmail.com.
+
+Have a good day and I wish you a lot of Windows installations and disks clones haha.
