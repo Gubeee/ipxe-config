@@ -1,6 +1,9 @@
 # KNOWN ISSUES
-- iPXE can't load due to background image so if you dont neet to put image in your bootloader don't do this
+- iPXE can't load due to background image so if you dont need to put image in your bootloader don't do this
 - Generating Windows `.ipxe` file is broken (idk why, it was working earlier 🤔)
+
+# DISCLAMER
+Everything was tested on Virtual Machines using openSUSE Leap Server and Windows 10.
 
 # OVERVIEW
 ### All required packages
