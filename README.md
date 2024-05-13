@@ -1,5 +1,5 @@
 # KNOWN ISSUES
-- iPXE can't load due to background image
+- iPXE can't load due to background image so if you dont neet to put image in your bootloader don't do this
 - Generating Windows `.ipxe` file is broken (idk why, it was working earlier 🤔)
 
 # OVERVIEW
