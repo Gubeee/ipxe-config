@@ -1,9 +1,6 @@
-# KNOWN ISSUES
-- iPXE can't load due to background image so if you dont need to put image in your bootloader don't do this
+# KNOWN ISSIUES
+- iPXE can't load due to background image
 - Generating Windows `.ipxe` file is broken (idk why, it was working earlier 🤔)
-
-# DISCLAMER
-Everything was tested on Virtual Machines using openSUSE Leap Server and Windows 10.
 
 # OVERVIEW
 ### All required packages
@@ -30,14 +27,14 @@ Everything was tested on Virtual Machines using openSUSE Leap Server and Windows
 	- pv
 
 # About
-At first I want to mention that **I'M NOT** a professional bash scripts writer 😝 So if you find something wrong in script, just let me know and if you know solution for that I would be grateful if you share the solution with me.
+At first I want to mention that **I'M NOT** professional bash scripts writer 😝 So if you have foud something wrong in script, just let me know and if you know solution for that I would be grateful if you share the solution with me.
 
 Now I want to say thank you to:
-- [rpi4cluster Owner](https://rpi4cluster.com/) - So far the best site with iPXE configuration for Windows Support (but I'm kinda sad there is no Linux documentation 😆)
-- [Guys from openSUSE Forum](https://forums.opensuse.org/) - Now I can't remeber for what I was looking for but I'm sure I've found something there
-- [Microsoft](https://www.microsoft.com) - for Windows 10, Windows 11 and Windows PE (but please do something with your documentation and `copype.cmd` script...)
-- [CloneZilla Owner](https://clonezilla.org/) - for the best cloning cloning software!
-- [iPXE Owner](ipxe.org) - for the best PXE firmware!
+	- [rpi4cluster Owner](https://rpi4cluster.com/) - So far the best site with iPXE configuration for Windows Support (but I'm kinda sad there is no any Linux support 😆)
+	- [Guys from openSUSE Forum](https://forums.opensuse.org/) - Now I can't remeber for what I was looking for but I'm sure I've found something there
+	- [Microsoft](https://www.microsoft.com) - for Windows 10, Windows 11 and Windows PE (but please do something with your documentation and `copype.cmd` script...)
+	- [CloneZilla Owner](https://clonezilla.org/) - for the best cloning cloning software!
+	- [iPXE Owner](ipxe.org) - for the best PXE firmware!
 
 # LICENSE
 I don't know what license should I choose so I'll say this - feel to use this script, make changes or whatever you want but make sure you aren't breaking the license rules of above corporations/people.
@@ -76,7 +73,7 @@ If you have any problems with script or other things that are needed to script w
 PXE-DATA tree should look the same as below:
 
 ![PXE-DATA TREE](image-1.png)
-```
+
 PXE-DATA
 |
 --- bg.png
@@ -90,7 +87,7 @@ PXE-DATA
 --- Win11
 |   |
 |   --- Windows 11 installation files
-```
+
 If there is not Windows 10 or 11 installation files, script will not work unless I'll find a good way to download .iso from Official Servers. Then whole script will be changed.
 
 And one more thing - if you made a mistake while writing something ie. while writing IP addresses, it's prefered to re-run script. Because later this IP addresses are present in '.efi', (in future) '.kpxe', DHCP, NFS files so it'll be easier to write it one more time than correcting and generating all files "by hand".
