@@ -27,7 +27,7 @@
 	- pv
 
 # About
-At first I want to mention that **I'M NOT** a professional bash scripts writer 😝 So if you have foud something wrong in script, just let me know and if you know solution for that I would be grateful if you share the solution with me.
+At first I want to mention that **I'M NOT** a professional bash scripts writer 😝 So if you find something wrong in script, just let me know and if you know solution for that I would be grateful if you share the solution with me.
 
 Now I want to say thank you to:
 - [rpi4cluster Owner](https://rpi4cluster.com/) - So far the best site with iPXE configuration for Windows Support (but I'm kinda sad there is no any Linux support 😆)
