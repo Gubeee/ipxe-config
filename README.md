@@ -1,4 +1,4 @@
-# KNOWN ISSIUES
+# KNOWN ISSUES
 - iPXE can't load due to background image
 - Generating Windows `.ipxe` file is broken (idk why, it was working earlier 🤔)
 
