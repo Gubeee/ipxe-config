@@ -454,9 +454,9 @@ function ipxe_config(){
         if [ $choise == "Y" ] || [ $choise == "y" ] || [ $choise == "T" ] || [ $choise == "t" ]
         then
             # Writing information to '.h' libraries for background image support
-            echo "#define CONSOLE_FRAMEBUFFER" > $path/Other/ipxe/src/config/console.h
-            echo "#define IMAGE_PNG" > $path/Other/ipxe/src/config/general.h
-            echo "#define CONSOLE_CMD" > $path/Other/ipxe/src/config/general.h
+            echo "#define CONSOLE_FRAMEBUFFER" >> $path/Other/ipxe/src/config/console.h
+            echo "#define IMAGE_PNG" >> $path/Other/ipxe/src/config/general.h
+            echo "#define CONSOLE_CMD" >> $path/Other/ipxe/src/config/general.h
             cp /home/$USER/PXE-DATA/bg.png $path/Other
         elif [ $choise == "N" ] || [ $choise == "n" ] || [ -z $choise ]
         then

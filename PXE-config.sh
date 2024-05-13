@@ -213,12 +213,21 @@ function dhcp_conf(){
             clear
             dhcp_conf
         fi
-
-	echo ""
-	echo "Nie wiem czemu, ale po wpisanu configu do pliku txt, dhcpd.service nie chce sie uruchomic, dlatego teraz zostaniesz przekierowany do 'yast2 dhcp-server' i wystaczy, ze wybierzesz tam interface, otworzysz port w firewallu, potem ustawisz DNSy i na koncu zmienisz status na aktywny i wlaczysz uruchamienie uslugi wraz ze startem systemu"
+    
+    for iface in $(ip -br -4 addr sh | awk '$3 != "127.0.0.1/8" {print $1}')
+    do
+        iface_ip=$(ip -br -4 addr sh | awk '$3 != "127.0.0.1/8" {print $3}')
+        if [[ "$iface_ip" == "$srv/24" ]]
+        then
+            yast dhcp-server interface select=$iface
+        fi
+    done
+        
+    echo ""
+	#echo "Nie wiem czemu, ale po wpisanu configu do pliku txt, dhcpd.service nie chce sie uruchomic, dlatego teraz zostaniesz przekierowany do 'yast2 dhcp-server' i wystaczy, ze wybierzesz tam interface, otworzysz port w firewallu, potem ustawisz DNSy i na koncu zmienisz status na aktywny i wlaczysz uruchamienie uslugi wraz ze startem systemu"
 	read -n 1 -r -s -p $"Po przeczytaniu informacji kliknij ENTER, by przejsc dalej..."
 
-	yast2 dhcp-server
+	#yast2 dhcp-server
 
         #Informacje
         echo "Plik 'ipxe.efi' (do bootowania w urzadzeniach z UEFI) zostanie wygenerowany automatycznie. Niestety, przez brak jednej paczki pod openSUSE, niemozliwe jest wygenerowanie pliku 'undionly.kpxe' (do bootowania w urzadzeniach z BIOS) dlatego, owy plik, bedzie 'pre-built', co w pewien sposob ograniczy mozliwosc customizacji."
@@ -410,7 +419,7 @@ function ipxe_conf(){
         echo "#define CONSOLE_FRAMEBUFFER" >> $path/Other/ipxe/src/config/console.h
         echo "#define IMAGE_PNG" >> $path/Other/ipxe/src/config/general.h
         echo "#define CONSOLE_CMD" >> $path/Other/ipxe/src/config/general.h
-	cp /home/suse/PXE-DATA/bg.png $path/Other
+	cp /home/$USER/PXE-DATA/bg.png $path/Other
     elif [ $choise == "N" ] || [ $choise == "n" ] || [ -z $choise ]
     then
         echo "Pomijanie..."
@@ -621,8 +630,8 @@ function ipxe_conf(){
             echo "\\\\$srv\\$smb_name\Installers\Windows\Win11\setup.exe" >> $path/Installers/Windows/Win11/install.bat
         fi
     fi
-    cp /home/suse/PXE-DATA/boot.wim $path/Other/boot.wim
-    cp /home/suse/PXE-DATA/undionly.kpxe $path/undionly.kpxe
+    cp /home/$USER/PXE-DATA/boot.wim $path/Other/boot.wim
+    cp /home/$USER/PXE-DATA/undionly.kpxe $path/undionly.kpxe
 
     read -n 1 -r -s -p $"Plik utworzone. Kliknij ENTER, by przejsc dalej..."
     echo ""
@@ -633,12 +642,12 @@ function os_down(){
     if [ -e $path/ipxe-files/win10.ipxe ]
     then
         echo "Kopiowanie plikow instalacyjnych Win10..."
-        cp -R /home/suse/PXE-DATA/Win10/* $path/Installers/Windows/Win10
+        cp -R /home/$USER/PXE-DATA/Win10/* $path/Installers/Windows/Win10
     fi
     if [ -e $path/ipxe-files/win11.ipxe ]
     then
         echo "Kopiowanie plikow instalacyjnych Win11..."
-        cp -R /home/suse/PXE-DATA/Win11/* $path/Installers/Windows/Win11
+        cp -R /home/$USER/PXE-DATA/Win11/* $path/Installers/Windows/Win11
     fi
     if [ -e $path/ipxe-files/clone.ipxe ]
     then
@@ -656,12 +665,28 @@ function os_down(){
 }
 
 function service_start(){
+    clear
+    echo "Uruchamianie uslug..."
     systemctl start dhcpd
     systemctl start apache2
     systemctl start tftp
     systemctl start smb
     systemctl start nfs
     systemctl start nfs-server
+    systemctl restart dhcpd.service
+
+    echo ""
+    echo "Dodawanie uslug do firewalla..."
+    firewall-cmd --permanent --add-service=apache2
+    firewall-cmd --permanent --add-service=http
+    firewall-cmd --permanent --add-service=dhcp
+    firewall-cmd --permanent --add-service=nfs
+    firewall-cmd --permanent --add-service=apache2
+    firewall-cmd --permanent --add-service=samba
+    firewall-cmd --permanent --add-service=tftp
+    
+    chmod -R 777 $path/nfs
+    chown -R nobody:nogroup $path/nfs
 }
 
 clear
