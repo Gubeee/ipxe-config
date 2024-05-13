@@ -33,7 +33,7 @@ Everything was tested on Virtual Machines using openSUSE Leap Server and Windows
 At first I want to mention that **I'M NOT** a professional bash scripts writer 😝 So if you find something wrong in script, just let me know and if you know solution for that I would be grateful if you share the solution with me.
 
 Now I want to say thank you to:
-- [rpi4cluster Owner](https://rpi4cluster.com/) - So far the best site with iPXE configuration for Windows Support (but I'm kinda sad there is no any Linux support 😆)
+- [rpi4cluster Owner](https://rpi4cluster.com/) - So far the best site with iPXE configuration for Windows Support (but I'm kinda sad there is no any Linux documentation 😆)
 - [Guys from openSUSE Forum](https://forums.opensuse.org/) - Now I can't remeber for what I was looking for but I'm sure I've found something there
 - [Microsoft](https://www.microsoft.com) - for Windows 10, Windows 11 and Windows PE (but please do something with your documentation and `copype.cmd` script...)
 - [CloneZilla Owner](https://clonezilla.org/) - for the best cloning cloning software!
