@@ -109,7 +109,7 @@ Have a good day and I wish you a lot of Windows installations and disks clones h
 - ~~Generating Windows `.ipxe` file is broken (idk why, it was working earlier 🤔)~~
 
 # TO DO
-- Find a way to download latest `.iso` of Windows 10 and 11
+- Find a way to download latest `.iso` of Windows 10 and 11 and other OSes/softwares
 - Find a way to generate `.kpxe` file
 - Add GUI
 - Add more options to PXE such as Hirens, MEMTEST and similar
