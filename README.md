@@ -23,6 +23,13 @@
 	- pv
 
 # About
+
+-------------------------------------------------------------------------
+| ***DISCLAMER*** All tests have been performed on Virtual Machines!    |
+| Software used: Oracle Virtual Box 7.0.14 r161095 (Qt5.15.2), libvirt  |
+| OS: openSUSE Leap (nogui just server 'edition'), Windows 10           |
+-------------------------------------------------------------------------
+
 At first I want to mention that **I'M NOT** a professional bash scripts writer 😝 So if you find something wrong in script, just let me know and if you know solution for that I would be grateful if you share the solution with me.
 
 Now I want to say thank you to:
