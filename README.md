@@ -25,9 +25,9 @@
 
 # About
 > [!NOTE]
-> All tests have been performed on Virtual Machines!
-> Software used: Oracle Virtual Box 7.0.14 r161095 (Qt5.15.2), libvirt
-> OS: openSUSE Leap (nogui just server 'edition'), Windows 10  
+> All tests have been performed on Virtual Machines!  
+> Software used: Oracle Virtual Box 7.0.14 r161095 (Qt5.15.2), libvirt  
+> OS: openSUSE Leap (nogui just server 'edition'), Windows 10    
 
 > [!IMPORTANT]
 > Script should be run as `su` or with `sudo` command!
