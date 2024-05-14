@@ -39,19 +39,20 @@ NC='\033[0m'
 # Main Menu Print Function
 function intro(){
     clear
+    
     echo -e "${BLUE}---------- PXE Configuration Script ----------${NC}"
     echo "1. Configure PXE"
-    echo "2. ReadMe"
+    #echo "2. ReadMe"
     echo "E. Exit Scritp"
 
     read -p "Choose what you want to do: " choise
 
     if [ $choise == "1" ]
     then
-        config_start
+        config_start            # Go to config_start function
     elif [ $choise == "2" ]
     then
-        readme_file
+        readme_file             # Go to readme_file function
     elif [ $choise == "E" ] || [ $choise == "e" ]
     then
         echo ""
@@ -67,6 +68,7 @@ function intro(){
 # If user pressed 1 as a option in the first function this function is printing new menu with all functions needed to be setup for PXE work.
 function config_start(){
     clear
+
     echo -e "${BLUE}---------- Configure PXE ----------${NC}"
     echo "1. Full Install"
     echo "S. Starting Services"
@@ -77,29 +79,30 @@ function config_start(){
 
     # Case for choose which option is chosen by user
     case $choise in 
-        1) full_install ;; # Starting full installation process *Recommended*
-        D|d) pack_down ;; # Downloading packages
-        S|s) service_start ;; # Starting Services 
-        E|e) exit_fn ;; # Exiting Script
-        *) invalid_param_config_start ;; #Invalid Parameter Function
+        1) full_install ;;                      # Starting full installation process *Recommended*
+        D|d) pack_down ;;                       # Downloading packages
+        S|s) service_start ;;                   # Starting Services 
+        E|e) exit_fn ;;                         # Exiting Script
+        *) invalid_param_config_start ;;        #Invalid Parameter Function
     esac
 }
 
 # Setting up PXE Server from scratch
 function full_install(){
     clear
-    pack_down
-    root_folder
-    file_tree
-    dhcp_config
-    tftp_config
-    samba_config
-    apache_config
-    nfs_config
-    ipxe_config
-    os_down
-    service_start
-    misc_options
+
+    pack_down       # Go to pack_down function
+    root_folder     # Go to root_folder function
+    file_tree       # Go to file_tree function
+    dhcp_config     # Go to dhcp_config function
+    tftp_config     # Go to tftp_config function
+    samba_config    # Go to samba_config function
+    apache_config   # Go to apache_config function
+    nfs_config      # Go to nfs_config function
+    ipxe_config     # Go to ipxe_config function
+    os_down         # Go to os_down function
+    service_start   # Go to service_start function
+    misc_options    # Go to misc_options function
 }
 
 # Creating root folder for PXE files
@@ -108,24 +111,26 @@ function root_folder(){
 
     echo -en "${CYAN}Default path for storing all of PXE files is /pxe-boot. Do you want to change it? (Y/N):${NC} "
     read choise
+
     if [ $choise == "Y" ] || [ $choise == "y" ] || [ $choise == "T" ] || [ $choise == "t" ]
     then
         read -p "Please select path for PXE files: " usr_path
-        path=$usr_path
+        path=$usr_path          # Setting usr_path as root directory of PXE server files
     elif [ $choise == "N" ] || [ $choise == "n" ] || [[ -z $choise ]]
         then
-            path="/pxe-boot"
+            path="/pxe-boot"    # Setting default path as root directory of PXE server files 
     else
         echo -e "${RED_BOLD}Undefined option! Let's start over...${NC}"
         sleep 3
         file_tree
     fi
     echo -e "${GREEN}Setting ${path} as a default path for all servers. Please wait...${NC}"
-    path_tftp=$path
-    path_apache=$path
-    path_smb=$path
-    path_nfs=$path
-    echo -e "${CYAN}Selected path: ${path}${NC}"
+
+    path_tftp=$path         # Setting $path for TFTP server.
+    path_apache=$path       # Setting $path for Apache2 server.
+    path_smb=$path          # Setting $path for Samba server. 
+    path_nfs=$path          # Setting $path for NFS server.
+    
     echo -en "${GREEN}Press ENTER to continue...${NC}"
     read -n 1 -r -s
 }
@@ -134,16 +139,16 @@ function root_folder(){
 function file_tree(){
     clear 
     echo -e "${CYAN}Creating files tree. Please wait...${NC}"
-    mkdir $path
-    mkdir $path/Installers
-    mkdir $path/Installers/Windows
-    mkdir $path/Installers/Windows/Win10
-    mkdir $path/Installers/Windows/Win11
-    mkdir $path/Installers/Linux
-    mkdir $path/nfs
-    mkdir $path/ipxe-files
-    mkdir $path/Other
-    mkdir $path/Other/ipxe
+    mkdir $path                                 # Creating root folder using $path variable
+    mkdir $path/Installers                      # Creating 'Installers' folder - there will be stored Windows10/11 installation files, linux distros files etc.
+    mkdir $path/Installers/Windows              # Creating 'Windows' subfolder for clarity :P
+    mkdir $path/Installers/Windows/Win10        # Creating 'Win10' subfolder for clarity :P 
+    mkdir $path/Installers/Windows/Win11        # Creating 'Win11' subfolder for clarity :P
+    mkdir $path/Installers/Linux                # Creating 'Linux' subfolder for clarity :P So far there is only 'CloneZilla' config (14.05.2024)
+    mkdir $path/nfs                             # Creating 'nfs' folder for storing cloned disk images
+    mkdir $path/ipxe-files                      # Creating 'ipxe-files' folder for storing '.ipxe' files
+    mkdir $path/Other                           # Creating 'Other' folder for storing files such as 'bg.png', 'boot.wim' or 'wimboot'
+    mkdir $path/Other/ipxe                      # Creating 'ipxe' subfolder for storing git cloned 'ipxe' files
     echo -en "${GREEN}Tree succesfully created. Press ENTER to continue...${NC}"
     read -n 1 -r -s
 }
@@ -176,6 +181,7 @@ function dhcp_config(){
                 net=""
             fi
         done
+
         # If content of 'gate' is empty then loop is working until 'gate' have an content inside
         while [ -z "$gate" ]
         do
@@ -188,6 +194,7 @@ function dhcp_config(){
                 gate=""
             fi
         done
+
         # If content of 'mask' is empty then loop is working until 'mask' have an content inside
         while [ -z "$mask" ]
         do
@@ -200,6 +207,7 @@ function dhcp_config(){
                 mask=""
             fi
         done
+
         # If content of 'srv' is empty then loop is working until 'srv' have an content inside
         while [ -z "$srv" ]
         do
@@ -212,6 +220,7 @@ function dhcp_config(){
                 srv=""
             fi
         done
+
         while [ -z "$range" ]
         do
             read -p "Enter range of DHCP addresses (ie. 192.168.50.3 192.168.50.254): " range
@@ -223,6 +232,7 @@ function dhcp_config(){
                 range=""
             fi
         done
+
         # DNS Question
         echo -en "${CYAN}By default DNS server is 8.8.8.8. Do you want to change DNS server IP? (Y/N):${NC} "
         read choise
@@ -242,17 +252,20 @@ function dhcp_config(){
         else
             echo -e "${RED_BOLD}Undefined option! Let's start over...${NC}"
         fi 
+
         # 'next-server' IP address = server address
         next=$srv
+
         # Looking for ethernet adapter which have the same IP address as DHCP server
         for iface in $(ip -br -4 addr sh | awk '$3 != "127.0.0.1/8" {print $1}')
         do
             iface_ip=$(ip -br -4 addr sh | awk '$3 != "127.0.0.1/8" {print $3}')
-            if [[ "$iface_ip" == "$srv/24" ]]
+            if [[ "$iface_ip" == "$srv/24" ]] 
             then
                 yast dhcp-server interface select=$iface > /dev/null # Selecting ethernet adapter with the same IP and setting it as a DHCP default adapter
             fi
         done
+
         echo -e "${CYAN}Writing informations to config file. Please wait...${NC}"
         echo "option client-arch code 93 = unsigned integer 16;" > /etc/dhcpd.conf
         echo "allow booting;" >> /etc/dhcpd.conf
@@ -280,7 +293,9 @@ function dhcp_config(){
 # TFTP Configuration
 function tftp_config(){
     clear
+
     echo -e "${CYAN}Checking if TFTP config file is present...${NC}"
+
     if [ ! -e /etc/sysconfig/tftp ]
     then
         echo -e "${RED_BOLD}Can not configure TFTP server because of missing config files. Please re-run script and make sure that all packages were successfully downloaded.${NC}"
@@ -301,7 +316,8 @@ function tftp_config(){
 # Samba Configuration
 function samba_config(){
     clear
-    smb_proc=0
+
+    smb_proc=0 # Auxiliary variable for 'while' loop
     echo -e "${CYAN}Checking if Samba config file is present...${NC}"
     if [ ! -e /etc/samba/smb.conf ]
     then
@@ -316,10 +332,10 @@ function samba_config(){
         then
             echo ""
             read -p "Enter share name: " usr_smb_name
-            smb_name=$user_smb_name
+            smb_name=$user_smb_name # Setting Samba share name as $user_smb_name
         elif [ $choise == "N" ] || [ $choise == "n" ] || [ -z $choise ]
         then
-            smb_name="pxe-files"
+            smb_name="pxe-files" # Setting default Samba share name
         else
             echo -e "${RED_BOLD}Undefined option! Let's start over...${NC}"
             sleep 3
@@ -334,12 +350,13 @@ function samba_config(){
         echo "  browseable = yes" >> /etc/samba/smb.conf
         echo "  writeable = yes" >> /etc/samba/smb.conf
 
+        # Creating Samba user for access to Samba share - this step is required for Windows 10/11 Installation
         echo -en "${CYAN}If you want samba to work properly, you have to create an user${NC}"
         echo ""
         echo -en "Enter username: "
         read smb_username
 
-        while [ $smb_proc != 1 ]
+        while [ $smb_proc != 1 ] # If $smb_proc is different than 1 that means 'smbpasswd' output is an error. 
         do    
             smbpasswd -a $smb_username
             if [ $? -ne 0 ]
@@ -348,8 +365,8 @@ function samba_config(){
                 smb_proc=0
             else
                 echo -en "${CYAN}Please, enter the same password. It'll be used in Windows Automation Script:${NC} "
-                read smb_passwd
-                smb_proc=1
+                read smb_passwd # This needed for autorun 'setup.exe' file in Windows Automation Script. If you put wrong password, Win PE will automatycally reboot!
+                smb_proc=1 # If $smb_proc is 1 that means everything went well
             fi
         done
         
@@ -361,6 +378,7 @@ function samba_config(){
 # Apache Configuration
 function apache_config(){
     clear
+
     echo -e "${CYAN}Checking if Apache config file is present...${NC}"
     if [ ! -d /etc/apache2/vhosts.d ]
     then
@@ -377,13 +395,14 @@ function apache_config(){
             read -n 1 -r -s
             exit
         else
-            read -p "Enter your Server Admin Email Address: " srv_adm_addr
+            read -p "Enter your Server Admin Email Address: " srv_adm_addr # Idk for what it's needed but I saw this in tutorial so I putted it there
             echo "<VirtualHost *:80>" > /etc/apache2/vhosts.d/pxe.conf
             echo "  ServerAdmin ${srv_adm_addr}" >> /etc/apache2/vhosts.d/pxe.conf
             echo "  DocumentRoot ${path_apache}" >> /etc/apache2/vhosts.d/pxe.conf
             echo "</VirtualHost>" >> /etc/apache2/vhosts.d/pxe.conf
         fi
     fi
+
     if [ ! -e /etc/apache2/httpd.conf ]
     then
         echo -e "${RED_BOLD}'httpd.conf' is not present.Please re-run script and make sure that all packages were successfully downloaded.${NC}"
@@ -404,6 +423,7 @@ function apache_config(){
 # NFS Configuration
 function nfs_config(){
     clear
+
     echo -e "${CYAN}Checking if NFS config file is present...${NC}"
     if [ ! -e /etc/exports ]
     then
@@ -413,7 +433,8 @@ function nfs_config(){
         exit
     else
         echo -e "${CYAN}Writing informations to config file..."
-        echo "$path/nfs *(rw,sync,no_subtree_check)" > /etc/exports
+        # Writing '$path/nfs' to exports file. This will be accessible from all PC's with IP from $net network.
+        echo "$path/nfs ${net}/${mask}(rw,sync,no_subtree_check)" > /etc/exports
         exportfs -a
         echo -en "${GREEN}Everything OK. Press ENTER to continue...${NC}"
         read -n 1 -r -s
@@ -423,6 +444,7 @@ function nfs_config(){
 # Download and configure iPXE
 function ipxe_config(){
     clear
+
     echo -e "${CYAN}Checking if expected path is present...${NC}"
     if [ ! -d $path/Other ] && [ ! -d $path/Other/ipxe ]
     then
@@ -432,8 +454,9 @@ function ipxe_config(){
         exit
     else
         echo -e "${CYAN}Clonning github repo. Please wait...${NC}"
-        git clone https://github.com/ipxe/ipxe.git $path/Other/ipxe
+        git clone https://github.com/ipxe/ipxe.git $path/Other/ipxe # Clonning iPXE files to '$path/Other/ipxe'
         echo ""
+
         # If script is not in expected path then it's changing directory 
         if [ $(pwd) != $path/Other ]
         then
@@ -442,15 +465,16 @@ function ipxe_config(){
             if [ ! -e $path/Other/wimboot ]
             then
                 echo -e "${CYAN}Downloading wimboot bootloader...${NC}"
-                wget https://github.com/ipxe/wimboot/releases/latest/download/wimboot
+                wget https://github.com/ipxe/wimboot/releases/latest/download/wimboot # Idk why there is 'wget' instead of 'git clone' but - one more time - I saw this in tutorial and I putted it there ;P
             fi
         fi
         
         echo -e "${CYAN}Creating 'embed.ipxe' file...${NC}"
-        touch $path/Other/ipxe/src/embed.ipxe
+        touch $path/Other/ipxe/src/embed.ipxe # 'embed.ipxe' file is a file required for custom build of '.efi' or/and '.kpxe' files. Without this file, you can build only stock build and later you would have to write iPXE commands
 
         echo -en "${CYAN}Would you like to add background image to iPXE bootloader? (Y/N):${NC} "
         read choise
+
         if [ $choise == "Y" ] || [ $choise == "y" ] || [ $choise == "T" ] || [ $choise == "t" ]
         then
             # Writing information to '.h' libraries for background image support
@@ -495,10 +519,10 @@ function ipxe_config(){
         if [ $(pwd) != $path/Other/ipxe/src ]
         then
             cd $path/Other/ipxe/src
-            make bin-x86_64-efi/ipxe.efi EMBED=embed.ipxe 2>&1 | pv -l > $path/make.log
+            make bin-x86_64-efi/ipxe.efi EMBED=embed.ipxe 2>&1 | pv -l > $path/make.log # 'pv' command informs us that script isn't stuck
             mv bin-x86_64-efi/ipxe.efi $path
         else
-            make bin-x86_64-efi/ipxe.efi EMBED=embed.ipxe 2>&1 | pv -l > $path/make.log
+            make bin-x86_64-efi/ipxe.efi EMBED=embed.ipxe 2>&1 | pv -l > $path/make.log # 'pv' command informs us that script isn't stuck
             mv bin-x86_64-efi/ipxe.efi $path
         fi
         
@@ -550,13 +574,14 @@ function ipxe_config(){
                 # Script is checking if 'bg.png' file is present. It depends on earlier user choise.
                 if [ -e $path/Other/bg.png ]
                 then
-                    echo "console --x 1024 --y 768 --picture http://${srv}/Other/bg.png" >> $path/ipxe-files/main.ipxe
+                    echo "console --x 1024 --y 768 --picture http://${srv}/Other/bg.png" >> $path/ipxe-files/main.ipxe 
                 fi
 
                 echo ":menu" >> $path/ipxe-files/main.ipxe
                 echo "menu" >> $path/ipxe-files/main.ipxe
                 echo "  item --gap -- -------- iPXE Boot Menu --------" >> $path/ipxe-files/main.ipxe
 
+                # Writing informations to 'menu' tab.
                 # Script is checking if 'win10.ipxe' file is present. It depends on earlier user choise.
                 if [ -e $path/ipxe-files/win10.ipxe ]
                 then
@@ -575,6 +600,7 @@ function ipxe_config(){
                     echo "  item clone    CloneZilla" >> $path/ipxe-files/main.ipxe
                 fi
 
+                # Miscellaneous options which you can choose in iPXE bootloader
                 echo "  item --gap -- -------- Misc --------" >> $path/ipxe-files/main.ipxe
                 echo "  item shell    iPXE Shell" >> $path/ipxe-files/main.ipxe
                 echo "  item sett     Network Settings" >> $path/ipxe-files/main.ipxe
@@ -582,6 +608,7 @@ function ipxe_config(){
                 echo 'choose --default return --timeout 5000 target && goto ${target}' >> $path/ipxe-files/main.ipxe
                 echo "" >> $path/ipxe-files/main.ipxe
                 
+                # Writing informations to 'target' tab.
                 # Script is checking if 'win10.ipxe' file is present. It depends on earlier user choise.
                 if [ -e $path/ipxe-files/win10.ipxe ]
                 then
@@ -610,6 +637,7 @@ function ipxe_config(){
                 echo "  goto menu" >> $path/ipxe-files/main.ipxe
             fi
 
+            # Writing informations to '$path/ipxe-files/{target}.ipxe' file.
             # Script is checking if 'win10.ipxe' file is present. It depends on earlier user choise.
             if [ -e $path/ipxe-files/win10.ipxe ]
             then
@@ -728,8 +756,8 @@ function ipxe_config(){
 # Copying and downloading OS
 function os_down(){
     clear
-    # Script is checking if 'win10.ipxe' file, 'win11.ipxe' file and 'clone.ipxe' file are present. If not .iso files will not be downloaded/copied.
 
+    # Script is checking if 'win10.ipxe' file, 'win11.ipxe' file and 'clone.ipxe' file are present. If not .iso files will not be downloaded/copied.
     if [ -e $path/ipxe-files/win10.ipxe ]
     then
         echo -e "${CYAN}Copying Windows 10 installation files...${NC}"
@@ -742,6 +770,7 @@ function os_down(){
         rsync -a --info=progress2 -R /home/$USER/PXE-DATA/Win11/* $path/Installers/Windows/Win11
     fi
 
+    # Downloading, mounting, copying and removing 'clone.iso' file.
     if [ -e $path/ipxe-files/clone.ipxe ]
     then
         echo -e "${CYAN}Downloading CloneZilla .iso file...${NC}"
@@ -818,6 +847,7 @@ function service_start(){
             systemctl start nfs-server
         fi
 
+        # Adding services to 'autostart'.
         systemctl enable dhcpd
         systemctl enable apache2
         systemctl enable tftp
@@ -852,9 +882,11 @@ function misc_options(){
     echo -e "${BLUE}------ Misc Options ------${NC}"
     echo -e "1. Open Readme file ${CYAN_UNDER}*RECOMMENDED*${NC}"
     echo "E. Exit"
+
     read -p "Select option: " choise
+    
     case $choise in
-        1) readme_file ;;
+        #1) readme_file ;;
         E|e) exit_fn ;;
         *) invalid_param_misc_options ;;
     esac
@@ -869,7 +901,7 @@ function exit_fn(){
 
 # Opening README file function
 function readme_file(){
-    git clone https://github.com/Gubeee/ipxe-config/README $path
+    git clone https://github.com/Gubeee/ipxe-config/blob/885b6328feee0bded18d4b86374c5d9c214909c2/README.md $path
     export VISUAL="/usr/bin/nano"
     $VISUAL $path/README
 }
@@ -888,4 +920,11 @@ function invalid_param_misc_options(){
     misc_options
 }
 
-intro
+if [ $EUID -ne 0 ]
+then
+    echo "Script should be run as su. Try login to su account or run script with sudo."
+    sleep 3
+    exit
+else
+    intro
+fi
