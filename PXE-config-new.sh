@@ -454,9 +454,9 @@ function ipxe_config(){
         if [ $choise == "Y" ] || [ $choise == "y" ] || [ $choise == "T" ] || [ $choise == "t" ]
         then
             # Writing information to '.h' libraries for background image support
-            echo "#define CONSOLE_FRAMEBUFFER" >> $path/Other/ipxe/src/config/console.h
-            echo "#define IMAGE_PNG" >> $path/Other/ipxe/src/config/general.h
-            echo "#define CONSOLE_CMD" >> $path/Other/ipxe/src/config/general.h
+            sed -i '3i#define CONSOLE_FRAMEBUFFER' $path/Other/ipxe/src/config/console.h
+            sed -i "3i#define IMAGE_PNG" $path/Other/ipxe/src/config/general.h
+            sed -i "4i#define CONSOLE_CMD" $path/Other/ipxe/src/config/general.h
             cp /home/$USER/PXE-DATA/bg.png $path/Other
         elif [ $choise == "N" ] || [ $choise == "n" ] || [ -z $choise ]
         then
@@ -501,7 +501,7 @@ function ipxe_config(){
             make bin-x86_64-efi/ipxe.efi EMBED=embed.ipxe 2>&1 | pv -l > $path/make.log
             mv bin-x86_64-efi/ipxe.efi $path
         fi
-
+        
         # 'main.ipxe' file questions
         echo -e "${CYAN}Checking if expected path is present...${NC}"
         if [ ! -d $path/ipxe-files ]
@@ -550,8 +550,7 @@ function ipxe_config(){
                 # Script is checking if 'bg.png' file is present. It depends on earlier user choise.
                 if [ -e $path/Other/bg.png ]
                 then
-                    echo "console --x 1024 --y 768" >> $path/ipxe-files/main.ipxe
-                    echo "console --picture http://${srv}/Other/bg.png" >> $path/ipxe-files/main.ipxe
+                    echo "console --x 1024 --y 768 --picture http://${srv}/Other/bg.png" >> $path/ipxe-files/main.ipxe
                 fi
 
                 echo ":menu" >> $path/ipxe-files/main.ipxe

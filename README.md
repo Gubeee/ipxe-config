@@ -1,7 +1,3 @@
-# KNOWN ISSIUES
-- iPXE can't load due to background image
-- Generating Windows `.ipxe` file is broken (idk why, it was working earlier 🤔)
-
 # OVERVIEW
 ### All required packages
 1. iPXE
@@ -27,7 +23,7 @@
 	- pv
 
 # About
-At first I want to mention that **I'M NOT** professional bash scripts writer 😝 So if you have foud something wrong in script, just let me know and if you know solution for that I would be grateful if you share the solution with me.
+At first I want to mention that **I'M NOT** a professional bash scripts writer 😝 So if you find something wrong in script, just let me know and if you know solution for that I would be grateful if you share the solution with me.
 
 Now I want to say thank you to:
 	- [rpi4cluster Owner](https://rpi4cluster.com/) - So far the best site with iPXE configuration for Windows Support (but I'm kinda sad there is no any Linux support 😆)
@@ -90,11 +86,17 @@ PXE-DATA
 
 If there is not Windows 10 or 11 installation files, script will not work unless I'll find a good way to download .iso from Official Servers. Then whole script will be changed.
 
+If you want to change background image simply put image in `/home/$USER/PXE-DATA` or in `$path/Other/bg.png`. Note that you have to enable this option in script and your background image name **SHOULD BE** `bg.png` and it has to be 1024x768px!
+
 And one more thing - if you made a mistake while writing something ie. while writing IP addresses, it's prefered to re-run script. Because later this IP addresses are present in '.efi', (in future) '.kpxe', DHCP, NFS files so it'll be easier to write it one more time than correcting and generating all files "by hand".
 
 I think that's all. One more time - if you have any questions - feel free to ask. My email address: gubisiowy@gmail.com.
 
 Have a good day and I wish you a lot of Windows installations and disks clones haha.
+
+# KNOWN ISSIUES
+- ~~iPXE can't load due to background image - so if you don't need a background image skip this step~~
+- ~~Generating Windows `.ipxe` file is broken (idk why, it was working earlier 🤔)~~
 
 # TO DO
 - Find a way to download latest `.iso` of Windows 10 and 11
@@ -102,5 +104,6 @@ Have a good day and I wish you a lot of Windows installations and disks clones h
 - Add GUI
 - Add more options to PXE such as Hirens, MEMTEST and similar
 - Make a script prettier
+- Migration to Kea DHCP
 - Better DHCP configuration function
 - And (for now) things I have no idea about 😝
