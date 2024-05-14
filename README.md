@@ -105,6 +105,7 @@ I think that's all. One more time - if you have any questions - feel free to ask
 Have a good day and I wish you a lot of Windows installations and disks clones haha.
 
 # KNOWN ISSIUES
+- Custom Samba share name is not working
 - ~~iPXE can't load due to background image - so if you don't need a background image skip this step~~
 - ~~Generating Windows `.ipxe` file is broken (idk why, it was working earlier 🤔)~~
 
