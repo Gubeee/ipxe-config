@@ -42,6 +42,7 @@ If you appreciate my work [you can buy me a coffee](https://help.buymeacoffee.co
 As you could see in an [Overview](#overview) there is one package missing in openSUSE - `isolinux`. What does it mean? You **CAN'T** generate `undionly.kpxe` file which is required to run iPXE on BIOS systems. If you want to do that, you have to use (rpi4cluster)[https://rpi4cluster.com/ipxe/] guide using Ubuntu (I know there is that package) and then copy this file. Maybe in future I'll find a way to make that file but now I don't have time and knowledge how to do this.
 
 If you want to configure **SAMBA SERVER** using different Linux Account than the one already created you have to make new LINUX ACCOUNT, ie:
+
 Your default account is `pxe-admin`. So if you are creating samba server, you **HAVE TO** put `pxe-admin` as username, because it's stored in a variable `$smb_username`. So it's looking something like this:
 
 1. You are putting username which is already created
