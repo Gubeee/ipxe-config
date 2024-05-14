@@ -69,7 +69,7 @@ If you have any problems with script or other things that are needed to script w
 PXE-DATA tree should look the same as below:
 
 ![PXE-DATA TREE](image-1.png)
-
+```
 PXE-DATA
 |
 --- bg.png
@@ -83,7 +83,7 @@ PXE-DATA
 --- Win11
 |   |
 |   --- Windows 11 installation files
-
+```
 If there is not Windows 10 or 11 installation files, script will not work unless I'll find a good way to download .iso from Official Servers. Then whole script will be changed.
 
 If you want to change background image simply put image in `/home/$USER/PXE-DATA` or in `$path/Other/bg.png`. Note that you have to enable this option in script and your background image name **SHOULD BE** `bg.png` and it has to be 1024x768px!
