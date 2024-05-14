@@ -116,4 +116,5 @@ Have a good day and I wish you a lot of Windows installations and disks clones h
 - Make a script prettier
 - Migration to Kea DHCP
 - Better DHCP configuration function
+- Add [TRUE/FALSE] variables instead of checking if file exists
 - And (for now) things I have no idea about 😝
