@@ -117,4 +117,5 @@ Have a good day and I wish you a lot of Windows installations and disks clones h
 - Migration to Kea DHCP
 - Better DHCP configuration function
 - Add [TRUE/FALSE] variables instead of checking if file exists
+- git clone only readfile or check if in same path as `.sh` file is `.md` file or smth
 - And (for now) things I have no idea about 😝
