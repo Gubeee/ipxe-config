@@ -19,6 +19,7 @@ img_bg="FALSE"
 file_win10="FALSE"
 file_win11="FALSE"
 file_clone="FALSE"
+file_mem="FALSE"
 
 # Misc
 srv="" # PXE Server IP Address
@@ -156,6 +157,9 @@ function file_tree(){
     mkdir $path/Installers/Windows/Win10        # Creating 'Win10' subfolder for clarity :P 
     mkdir $path/Installers/Windows/Win11        # Creating 'Win11' subfolder for clarity :P
     mkdir $path/Installers/Linux                # Creating 'Linux' subfolder for clarity :P So far there is only 'CloneZilla' config (14.05.2024)
+    mkdir $path/Installers/Misc                 # Creating 'Misc' subfolder for clarity :P
+    mkdir $path/Installers/Misc/MemTest         # Creating "MemTest" subfolder for clarity :P
+    mkdir $path/Installers/Misc/Hirens          # Creating "Hirens" subfolder for clarity :P
     mkdir $path/nfs                             # Creating 'nfs' folder for storing cloned disk images
     mkdir $path/ipxe-files                      # Creating 'ipxe-files' folder for storing '.ipxe' files
     mkdir $path/Other                           # Creating 'Other' folder for storing files such as 'bg.png', 'boot.wim' or 'wimboot'
@@ -582,6 +586,14 @@ function ipxe_config(){
                 touch $path/ipxe-files/clone.ipxe
             fi
 
+            echo -en "${CYAN}Would you like to create MemTest config file? (Y/N):${NC} "
+            read choise
+            if [ $choise == "Y" ] || [ $choise == "y" ] || [ $choise == "T" ] || [ $choise == "t" ] || [ -z $choise ]
+            then
+                file_mem="TRUE"
+                touch $path/ipxe-files/mem.ipxe
+            fi
+
             # Creating 'main.ipxe' file where bootloader menu information are 'stored'
             echo -e "${CYAN}Creating 'main.ipxe' file...${NC}"
             touch $path/ipxe-files/main.ipxe
@@ -627,6 +639,11 @@ function ipxe_config(){
 
                 # Miscellaneous options which you can choose in iPXE bootloader
                 echo "  item --gap -- -------- Misc --------" >> $path/ipxe-files/main.ipxe
+                # Script is checking if 'mem.ipxe' file is present. It depends on earlier user choise.
+                if [ $file_mem == "TRUE" ]
+                then
+                    echo "  item mem    MemTest" >> $path/ipxe-files/main.ipxe
+                fi
                 echo "  item shell    iPXE Shell" >> $path/ipxe-files/main.ipxe
                 echo "  item sett     Network Settings" >> $path/ipxe-files/main.ipxe
                 echo "" >> $path/ipxe-files/main.ipxe
@@ -653,6 +670,13 @@ function ipxe_config(){
                 then
                     echo ":clone" >> $path/ipxe-files/main.ipxe
                     echo "  chain http://${srv}/ipxe-files/clone.ipxe" >> $path/ipxe-files/main.ipxe
+                fi
+
+                # Script is checking if 'mem.ipxe' file is present. It depends on earlier user choise.
+                if [ $file_mem == "TRUE" ]
+                then
+                    echo ":mem" >> $path/ipxe-files/main.ipxe
+                    echo "  chain http://${srv}/ipxe-files/mem.ipxe" >> $path/ipxe-files/main.ipxe
                 fi
 
                 echo ":shell" >> $path/ipxe-files/main.ipxe
@@ -704,6 +728,18 @@ function ipxe_config(){
                 echo "initrd http://${srv}/Installers/Linux/live/initrd.img" >> $path/ipxe-files/clone.ipxe
                 echo "" >> $path/ipxe-files/clone.ipxe
                 echo "boot" >> $path/ipxe-files/clone.ipxe  
+            fi
+
+            # Script is checking if 'mem.ipxe' file is present. It depends on earlier user choise.
+            if [ $file_mem == "TRUE" ]
+            then
+                echo "#!ipxe" > $path/ipxe-files/mem.ipxe
+                echo "" >> $path/ipxe-files/mem.ipxe
+                echo "kernel http://${srv}/Installers/Misc/MemTest/memdisk || read void" >> $path/ipxe-files/mem.ipxe
+                echo "initrd http://${srv}/Installers/Misc/MemTest/memtest.iso || read void" >> $path/ipxe-files/mem.ipxe
+                echo "imgargs memdisk iso raw || read void" >> $path/ipxe-files/mem.ipxe
+                echo "" >> $path/ipxe-files/mem.ipxe
+                echo "boot || read void" >> $path/ipxe-files/mem.ipxe
             fi
 
             echo -e "${CYAN}Creating Windows Auto Startup Script...${NC}"
@@ -806,6 +842,24 @@ function os_down(){
         rsync -a --info=progress2 /mnt/* $path/Installers/Linux
         umount /mnt
         rm -R $path/clone.iso
+    fi
+
+    if [ $file_mem == "TRUE" ]
+    then
+        cp /usr/share/syslinux/memtest $path/Installers/Misc/MemTest
+        curl 'https://memtest.org/download/v7.00/mt86plus_7.00_64.iso.zip' \
+        -H 'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7' \
+        -H 'Accept-Language: pl-PL,pl;q=0.9,en-US;q=0.8,en;q=0.7' \
+        -H 'Connection: keep-alive' \
+        -H 'Sec-Fetch-Dest: document' \
+        -H 'Sec-Fetch-Mode: navigate' \
+        -H 'Sec-Fetch-Site: none' \
+        -H 'Sec-Fetch-User: ?1' \
+        -H 'Upgrade-Insecure-Requests: 1' \
+        -H 'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36' \
+        -H 'sec-ch-ua: "Chromium";v="124", "Google Chrome";v="124", "Not-A.Brand";v="99"' \
+        -H 'sec-ch-ua-mobile: ?0' \
+        -H 'sec-ch-ua-platform: "Windows"' -o $path/Installers/Misc/MemTest/memtest.iso
     fi
         
     echo -en "${GREEN}Everything OK. Press ENTER to continue...${NC}"
