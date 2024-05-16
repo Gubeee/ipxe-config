@@ -7,11 +7,18 @@ path_tftp=""
 path_smb=""
 path_apache=""
 path_nfs=""
+path_sh=""
 
 # User Specified
 smb_name=""
 smb_username=""
 smb_passwd=""
+
+# Booleans
+img_bg="FALSE"
+file_win10="FALSE"
+file_win11="FALSE"
+file_clone="FALSE"
 
 # Misc
 srv="" # PXE Server IP Address
@@ -35,14 +42,18 @@ BLUE_UNDER='\033[4;34;47m'
 
 NC='\033[0m'
 
+# ------ End of Global Variables ------ 
+
 # ------ Functions ------ 
 # Main Menu Print Function
 function intro(){
     clear
     
+    path_sh="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)" # Getting path to script, where SHOULD BE stored all of the data (Win10/11 Installation Files, bg.img, etc.). For more information chceck README.md and look on file tree img.
+
     echo -e "${BLUE}---------- PXE Configuration Script ----------${NC}"
     echo "1. Configure PXE"
-    #echo "2. ReadMe"
+    echo "2. ReadMe"
     echo "E. Exit Scritp"
 
     read -p "Choose what you want to do: " choise
@@ -114,8 +125,8 @@ function root_folder(){
 
     if [ $choise == "Y" ] || [ $choise == "y" ] || [ $choise == "T" ] || [ $choise == "t" ]
     then
-        read -p "Please select path for PXE files: " usr_path
-        path="/${usr_path}"          # Setting usr_path as root directory of PXE server files
+        read -p "Please select path for PXE files: " -i "/" -e usr_path
+        path=$usr_path          # Setting usr_path as root directory of PXE server files
     elif [ $choise == "N" ] || [ $choise == "n" ] || [[ -z $choise ]]
         then
             path="/pxe-boot"    # Setting default path as root directory of PXE server files 
@@ -182,10 +193,12 @@ function dhcp_config(){
             fi
         done
 
+        net_cut=$(echo "$net" | cut -d'.' -f1-3)
+
         # If content of 'gate' is empty then loop is working until 'gate' have an content inside
         while [ -z "$gate" ]
         do
-            read -p "Enter a gateway address: " gate
+            read -e -p "Enter a gateway address: " -i "$net_cut." gate
             if [[ $gate =~ ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$ ]]
             then
                 echo "Dummy Echo" > /dev/null 
@@ -211,7 +224,7 @@ function dhcp_config(){
         # If content of 'srv' is empty then loop is working until 'srv' have an content inside
         while [ -z "$srv" ]
         do
-            read -p "Enter a server address: " srv
+            read -e -p "Enter a server address: " -i "$net_cut."  srv
             if [[ $srv =~ ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$ ]]
             then
                 echo "Dummy Echo" > /dev/null 
@@ -223,7 +236,7 @@ function dhcp_config(){
 
         while [ -z "$range" ]
         do
-            read -p "Enter range of DHCP addresses (ie. 192.168.50.3 192.168.50.254): " range
+            read -e -p "Enter range of DHCP addresses (ie. 192.168.50.3 192.168.50.254): " range
             if [[ $range =~ ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])[[:space:]]+(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$ ]]
             then
                 echo "Dummy Echo" > /dev/null
@@ -330,7 +343,6 @@ function samba_config(){
         read choise
         if [ $choise == "Y" ] || [ $choise == "y" ] || [ $choise == "T" ] || [ $choise == "t" ]
         then
-            echo ""
             read -p "Enter share name: " usr_smb_name
             smb_name=$usr_smb_name # Setting Samba share name as $usr_smb_name
         elif [ $choise == "N" ] || [ $choise == "n" ] || [ -z $choise ]
@@ -343,7 +355,7 @@ function samba_config(){
         fi
         echo -e "${CYAN}Writing informations to config file...${NC}"
 
-        echo "[${usr_smb_name}]" > /etc/samba/smb.conf
+        echo "[${smb_name}]" > /etc/samba/smb.conf
         echo "  comment = Samba on PXE Server" >> /etc/samba/smb.conf
         echo "  path = ${path_smb}" >> /etc/samba/smb.conf
         echo "  read only = no" >> /etc/samba/smb.conf
@@ -395,7 +407,10 @@ function apache_config(){
             read -n 1 -r -s
             exit
         else
-            read -p "Enter your Server Admin Email Address: " srv_adm_addr # Idk for what it's needed but I saw this in tutorial so I putted it there
+            while [ -z $srv_adm_addr ]
+            do
+                read -p "Enter your Server Admin Email Address: " srv_adm_addr # Idk for what it's needed but I saw this in tutorial so I putted it there
+            done
             echo "<VirtualHost *:80>" > /etc/apache2/vhosts.d/pxe.conf
             echo "  ServerAdmin ${srv_adm_addr}" >> /etc/apache2/vhosts.d/pxe.conf
             echo "  DocumentRoot ${path_apache}" >> /etc/apache2/vhosts.d/pxe.conf
@@ -472,7 +487,7 @@ function ipxe_config(){
         echo -e "${CYAN}Creating 'embed.ipxe' file...${NC}"
         touch $path/Other/ipxe/src/embed.ipxe # 'embed.ipxe' file is a file required for custom build of '.efi' or/and '.kpxe' files. Without this file, you can build only stock build and later you would have to write iPXE commands
 
-        echo -en "${CYAN}Would you like to add background image to iPXE bootloader? (Y/N):${NC} "
+        echo -en "${CYAN}Would you like to add background image to iPXE bootloader?${NC}${RED} MAKE SURE YOU HAVE 'bg.png' FILE IN ${path_sh} PATH!${NC} (Y/N):${NC} "
         read choise
 
         if [ $choise == "Y" ] || [ $choise == "y" ] || [ $choise == "T" ] || [ $choise == "t" ]
@@ -481,9 +496,12 @@ function ipxe_config(){
             sed -i '3i#define CONSOLE_FRAMEBUFFER' $path/Other/ipxe/src/config/console.h
             sed -i "3i#define IMAGE_PNG" $path/Other/ipxe/src/config/general.h
             sed -i "4i#define CONSOLE_CMD" $path/Other/ipxe/src/config/general.h
-            cp /home/$USER/PXE-DATA/bg.png $path/Other
+            cp $path_sh/bg.png $path/Other
+
+            img_bg="TRUE"
         elif [ $choise == "N" ] || [ $choise == "n" ] || [ -z $choise ]
         then
+            img_bg="FALSE"
             echo -e "${CYAN}Skipping...${NC}"
         else
             echo -e "${RED_BOLD}Undefined option! Let's start over...${NC}"
@@ -514,16 +532,20 @@ function ipxe_config(){
             echo "  prompt --key s --timeout 10000 Netboot Failed. Hit 's' for the iPXE shell; reboot in 10 seconds && shell || reboot" >> $path/Other/ipxe/src/embed.ipxe
         fi
 
-        echo -e "${CYAN}Creating 'ipxe.efi' file. Please wait...${NC}"
+        echo -e "${CYAN}Creating 'ipxe.efi' file and 'undionly.kpxe' file. Please wait...${NC}"
         # Checking if script is in expected path, if not then it's changing directory
         if [ $(pwd) != $path/Other/ipxe/src ]
         then
             cd $path/Other/ipxe/src
-            make bin-x86_64-efi/ipxe.efi EMBED=embed.ipxe 2>&1 | pv -l > $path/make.log # 'pv' command informs us that script isn't stuck
+            make bin-x86_64-efi/ipxe.efi EMBED=embed.ipxe 2>&1 | pv -l > $path/make-efi.log # 'pv' command informs us that script isn't stuck
             mv bin-x86_64-efi/ipxe.efi $path
+            make bin/undionly.kpxe EMBED=embed.ipxe 2>&1 | pv -l > $path/make-kpxe.log      # 'pv' command informs us that script isn't stuck
+            mv bin/undionly.kpxe $path
         else
-            make bin-x86_64-efi/ipxe.efi EMBED=embed.ipxe 2>&1 | pv -l > $path/make.log # 'pv' command informs us that script isn't stuck
+            make bin-x86_64-efi/ipxe.efi EMBED=embed.ipxe 2>&1 | pv -l > $path/make-efi.log # 'pv' command informs us that script isn't stuck
             mv bin-x86_64-efi/ipxe.efi $path
+            make bin/undionly.kpxe EMBED=embed.ipxe 2>&1 | pv -l > $path/make-kpxe.log      # 'pv' command informs us that script isn't stuck
+            mv bin/undionly.kpxe $path
         fi
         
         # 'main.ipxe' file questions
@@ -540,6 +562,7 @@ function ipxe_config(){
             read choise
             if [ $choise == "Y" ] || [ $choise == "y" ] || [ $choise == "T" ] || [ $choise == "t" ] || [ -z $choise ]
             then
+                file_win10="TRUE"
                 touch $path/ipxe-files/win10.ipxe
             fi
             
@@ -547,6 +570,7 @@ function ipxe_config(){
             read choise
             if [ $choise == "Y" ] || [ $choise == "y" ] || [ $choise == "T" ] || [ $choise == "t" ] || [ -z $choise ]
             then
+                file_win11="TRUE"
                 touch $path/ipxe-files/win11.ipxe
             fi
 
@@ -554,6 +578,7 @@ function ipxe_config(){
             read choise
             if [ $choise == "Y" ] || [ $choise == "y" ] || [ $choise == "T" ] || [ $choise == "t" ] || [ -z $choise ]
             then
+                file_clone="TRUE"
                 touch $path/ipxe-files/clone.ipxe
             fi
 
@@ -572,7 +597,7 @@ function ipxe_config(){
                 echo "" >> $path/ipxe-files/main.ipxe
 
                 # Script is checking if 'bg.png' file is present. It depends on earlier user choise.
-                if [ -e $path/Other/bg.png ]
+                if [ $img_bg == "TRUE" ]
                 then
                     echo "console --x 1024 --y 768 --picture http://${srv}/Other/bg.png" >> $path/ipxe-files/main.ipxe 
                 fi
@@ -583,19 +608,19 @@ function ipxe_config(){
 
                 # Writing informations to 'menu' tab.
                 # Script is checking if 'win10.ipxe' file is present. It depends on earlier user choise.
-                if [ -e $path/ipxe-files/win10.ipxe ]
+                if [ $file_win10 == "TRUE" ]
                 then
                     echo "  item win10    Install Windows 10" >> $path/ipxe-files/main.ipxe
                 fi
 
                 # Script is checking if 'win11.ipxe' file is present. It depends on earlier user choise.
-                if [ -e $path/ipxe-files/win11.ipxe ]
+                if [ $file_win11 == "TRUE" ]
                 then
                     echo "  item win11    Install Windows 11" >> $path/ipxe-files/main.ipxe
                 fi
 
                 # Script is checking if 'clone.ipxe' file is present. It depends on earlier user choise.
-                if [ -e $path/ipxe-files/clone.ipxe ]
+                if [ $file_clone == "TRUE" ]
                 then
                     echo "  item clone    CloneZilla" >> $path/ipxe-files/main.ipxe
                 fi
@@ -610,21 +635,21 @@ function ipxe_config(){
                 
                 # Writing informations to 'target' tab.
                 # Script is checking if 'win10.ipxe' file is present. It depends on earlier user choise.
-                if [ -e $path/ipxe-files/win10.ipxe ]
+                if [ $file_win10 == "TRUE" ]
                 then
                     echo ":win10" >> $path/ipxe-files/main.ipxe
                     echo "    chain http://${srv}/ipxe-files/win10.ipxe" >> $path/ipxe-files/main.ipxe
                 fi
 
                 # Script is checking if 'win11.ipxe' file is present. It depends on earlier user choise.
-                if [ -e $path/ipxe-files/win11.ipxe ]
+                if [ $file_win11 == "TRUE" ]
                 then
                     echo ":win11" >> $path/ipxe-files/main.ipxe
                     echo "    chain http://${srv}/ipxe-files/win11.ipxe" >> $path/ipxe-files/main.ipxe
                 fi
 
                 # Script is checking if 'clone.ipxe' file is present. It depends on earlier user choise.
-                if [ -e $path/ipxe-files/clone.ipxe ]
+                if [ $file_clone == "TRUE" ]
                 then
                     echo ":clone" >> $path/ipxe-files/main.ipxe
                     echo "  chain http://${srv}/ipxe-files/clone.ipxe" >> $path/ipxe-files/main.ipxe
@@ -639,7 +664,7 @@ function ipxe_config(){
 
             # Writing informations to '$path/ipxe-files/{target}.ipxe' file.
             # Script is checking if 'win10.ipxe' file is present. It depends on earlier user choise.
-            if [ -e $path/ipxe-files/win10.ipxe ]
+            if [ $file_win10 == "TRUE" ]
             then
                 echo "#!ipxe" > $path/ipxe-files/win10.ipxe
                 echo "" >> $path/ipxe-files/win10.ipxe
@@ -655,7 +680,7 @@ function ipxe_config(){
             fi
 
             # Script is checking if 'win11.ipxe' file is present. It depends on earlier user choise.
-            if [ -e $path/ipxe-files/win11.ipxe ]
+            if [ $file_win11 == "TRUE" ]
             then
                 echo "#!ipxe" > $path/ipxe-files/win11.ipxe
                 echo "" >> $path/ipxe-files/win11.ipxe
@@ -671,7 +696,7 @@ function ipxe_config(){
             fi
 
             # Script is checking if 'clone.ipxe' file is present. It depends on earlier user choise.
-            if [ -e $path/ipxe-files/clone.ipxe ]
+            if [ $file_clone == "TRUE" ]
             then
                 echo "#!ipxe" > $path/ipxe-files/clone.ipxe
                 echo "" >> $path/ipxe-files/clone.ipxe
@@ -683,7 +708,7 @@ function ipxe_config(){
 
             echo -e "${CYAN}Creating Windows Auto Startup Script...${NC}"
             # Script is checking if 'win10.ipxe' file is present. It depends on earlier user choise.
-            if [ -e $path/ipxe-files/win10.ipxe ]
+            if [ $file_win10 == "TRUE" ]
             then
                 # Creating 'winpeshl.ini' and 'install.bat' files. Files name should not be changed otherwise scripts will not work.
                 touch $path/Installers/Windows/Win10/winpeshl.ini
@@ -712,7 +737,7 @@ function ipxe_config(){
                 fi
             fi
 
-            if [ -e $path/ipxe-files/win11.ipxe ]
+            if [ $file_win11 == "TRUE" ]
             then
                 # Creating 'winpeshl.ini' and 'install.bat' files. Files name should not be changed otherwise scripts will not work.
                 touch $path/Installers/Windows/Win11/winpeshl.ini
@@ -743,7 +768,7 @@ function ipxe_config(){
 
             # Copying 'boot.wim' file to PXE root folder
             echo -e "${CYAN}Copying 'boot.wim' file to root folder...${NC}"
-            rsync -a --info=progress2 /home/$USER/PXE-DATA/boot.wim $path/Other/boot.wim
+            rsync -a --info=progress2 $path_sh/boot.wim $path/Other/boot.wim
 
             
             echo -en "${GREEN}Everything OK. Press ENTER to continue...${NC}"
@@ -758,20 +783,20 @@ function os_down(){
     clear
 
     # Script is checking if 'win10.ipxe' file, 'win11.ipxe' file and 'clone.ipxe' file are present. If not .iso files will not be downloaded/copied.
-    if [ -e $path/ipxe-files/win10.ipxe ]
+    if [ $file_win10 == "TRUE" ]
     then
         echo -e "${CYAN}Copying Windows 10 installation files...${NC}"
-        rsync -a --info=progress2 /home/$USER/PXE-DATA/Win10/* $path/Installers/Windows/Win10
+        rsync -a --info=progress2 $path_sh/Win10/* $path/Installers/Windows/Win10
     fi
 
-    if [ -e $path/ipxe-files/win11.ipxe ]
+    if [ $file_win11 == "TRUE" ]
     then
         echo -e "${CYAN}Copying Windows 11 installation files...${NC}"
-        rsync -a --info=progress2 -R /home/$USER/PXE-DATA/Win11/* $path/Installers/Windows/Win11
+        rsync -a --info=progress2 -R $path_sh/Win11/* $path/Installers/Windows/Win11
     fi
 
     # Downloading, mounting, copying and removing 'clone.iso' file.
-    if [ -e $path/ipxe-files/clone.ipxe ]
+    if [ $file_clone == "TRUE" ]
     then
         echo -e "${CYAN}Downloading CloneZilla .iso file...${NC}"
         curl 'https://deac-riga.dl.sourceforge.net/project/clonezilla/clonezilla_live_stable/3.1.2-22/clonezilla-live-3.1.2-22-amd64.iso?viasf=1' -H 'User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:109.0) Gecko/20100101 Firefox/115.0' -H 'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8' -H 'Accept-Language: en-US,en;q=0.5' -H 'Accept-Encoding: gzip, deflate, br' -H 'Referer: https://sourceforge.net/' -H 'Connection: keep-alive' -H 'Cookie: __cmpconsentx11319=CP9nwjAP9nwjAAfUnBENAxEsAP_AAEPAACiQGgwEAAGgAVABAAC0AGgATAAoABfADCAHgAQQAowCEALzAZeA0EDQYCAADQAKgAgABaADQAJgAUAAvgBhADwAIIAUYBCAF5gMvAaCAAA; __cmpcvcx11319=__c37910_s135_c48392_s30_U__; __cmpcpcx11319=____; __gads=ID=51ca8e34ae5905c0:T=1714043840:RT=1714043840:S=ALNI_MZYJCQfXewTvz1OnvD_MDkzB_h-SA; __gpi=UID=00000dfe1d0b78b9:T=1714043840:RT=1714043840:S=ALNI_MZ-vKxNSTOZQlHMunc0b57EHUI9gQ; __eoi=ID=ac4bf2da1cea6aae:T=1714043840:RT=1714043840:S=AA-AfjYlMlSvxwex91lUf6RofYJP' -H 'Upgrade-Insecure-Requests: 1' -H 'Sec-Fetch-Dest: document' -H 'Sec-Fetch-Mode: navigate' -H 'Sec-Fetch-Site: same-site' -o $path/clone.iso
@@ -796,7 +821,7 @@ function pack_down(){
     zypper up -y
     clear
     echo -e "${CYAN_BOLD}Downloading packages required for iPXE...${NC}"
-    zypper in -y make gcc binutils perl mtools mkisofs syslinux liblzma5
+    zypper in -y make gcc binutils perl mtools mkisofs syslinux liblzma5 xz-devel
     clear
     echo -e "${CYAN_BOLD}Downloading services required for PXE Server...${NC}"
     zypper in -y yast2-dhcp-server yast2-tftp-server apache2 git yast2-nfs-server tftp dhcp-server samba yast2-samba-server nfs-kernel-server pv
@@ -855,7 +880,7 @@ function service_start(){
         systemctl enable nfs
         systemctl enable nfs-server
 
-        echo "Adding firewall rules for services..."
+        echo "${CYAN}Adding firewall rules for services...${NC}"
         firewall-cmd --zone=public --permanent --add-service=apache2
         firewall-cmd --zone=public --permanent --add-service=http
         firewall-cmd --zone=public --permanent --add-service=dhcp
@@ -886,7 +911,7 @@ function misc_options(){
     read -p "Select option: " choise
     
     case $choise in
-        #1) readme_file ;;
+        1) readme_file ;;
         E|e) exit_fn ;;
         *) invalid_param_misc_options ;;
     esac
@@ -901,9 +926,13 @@ function exit_fn(){
 
 # Opening README file function
 function readme_file(){
-    git clone https://github.com/Gubeee/ipxe-config/blob/885b6328feee0bded18d4b86374c5d9c214909c2/README.md $path
-    export VISUAL="/usr/bin/nano"
-    $VISUAL $path/README
+    if [ -e $path_sh/README.md ]
+    then
+        export VISUAL="/usr/bin/nano"
+        $VISUAL $path/README
+    else
+        echo "${RED} File 'README.md' doesn't exists!${NC}"
+    fi
 }
 
 # If user choose an invalid parameter in case statement then it's reseting 'config_start' function
