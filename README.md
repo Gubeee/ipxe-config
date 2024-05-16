@@ -1,3 +1,5 @@
+I messed up and didn't make a .tmp file with unchecked version of script! If you want to download it, try again tommorrow or when this message will disappear!!
+
 # OVERVIEW
 ### All required packages
 1. iPXE
