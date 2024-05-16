@@ -9,7 +9,7 @@
 	- mkisofs
 	- syslinux
 	- liblzma5
-	- ~~isolinux~~ - **This one is missing in openSUSE**
+	- xz-devel
 2. Other Packages
 	- yast2-dhcp-server 
 	- yast2-tftp-server 
@@ -49,7 +49,7 @@ If you appreciate my work [you can buy me a coffee](https://help.buymeacoffee.co
 
 # WORTH TO KNOW
 
-As you could see in an [Overview](#overview) there is one package missing in openSUSE - `isolinux`. What does it mean? You **CAN'T** generate `undionly.kpxe` file which is required to run iPXE on BIOS systems. If you want to do that, you have to use (rpi4cluster)[https://rpi4cluster.com/ipxe/] guide using Ubuntu (I know there is that package) and then copy this file. Maybe in future I'll find a way to make that file but now I don't have time and knowledge how to do this.
+~~As you could see in an [Overview](#overview) there is one package missing in openSUSE - `isolinux`. What does it mean? You **CAN'T** generate `undionly.kpxe` file which is required to run iPXE on BIOS systems. If you want to do that, you have to use (rpi4cluster)[https://rpi4cluster.com/ipxe/] guide using Ubuntu (I know there is that package) and then copy this file. Maybe in future I'll find a way to make that file but now I don't have time and knowledge how to do this.~~
 
 If you want to configure **SAMBA SERVER** using different Linux Account than the one already created you have to make new LINUX ACCOUNT, ie:
 
@@ -98,7 +98,7 @@ If there is not Windows 10 or 11 installation files, script will not work unless
 
 If you want to change background image simply put image in `/home/$USER/PXE-DATA` or in `$path/Other/bg.png`. Note that you have to enable this option in script and your background image name **SHOULD BE** `bg.png` and it has to be 1024x768px!
 
-And one more thing - if you made a mistake while writing something ie. while writing IP addresses, it's prefered to re-run script. Because later this IP addresses are present in '.efi', (in future) '.kpxe', DHCP, NFS files so it'll be easier to write it one more time than correcting and generating all files "by hand".
+And one more thing - if you made a mistake while writing something ie. while writing IP addresses, it's prefered to re-run script. Because later this IP addresses are present in '.efi', '.kpxe', DHCP, NFS files so it'll be easier to write it one more time than correcting and generating all files "by hand".
 
 I think that's all. One more time - if you have any questions - feel free to ask. My email address: gubisiowy@gmail.com.
 
@@ -111,7 +111,6 @@ Have a good day and I wish you a lot of Windows installations and disks clones h
 
 # TO DO
 - Find a way to download latest `.iso` of Windows 10 and 11 and other OSes/softwares
-- Find a way to generate `.kpxe` file
 - Add GUI
 - Add more options to PXE such as Hirens, MEMTEST and similar
 - Make a script prettier
@@ -120,4 +119,5 @@ Have a good day and I wish you a lot of Windows installations and disks clones h
 - Add [TRUE/FALSE] variables instead of checking if file exists [IN PROGRESS]
 - git clone only README file or check if in same path as `.sh` file is `.md` file or smth
 - Checking if samba username is present in system - if not then script will ask for creating new account
+~~- Find a way to generate `.kpxe` file~~ [DONE]
 - And (for now) things I have no idea about 😝
