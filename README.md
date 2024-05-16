@@ -48,9 +48,6 @@ I don't know what license I should choose so I'll say this - feel free to use th
 If you appreciate my work [you can buy me a coffee](https://help.buymeacoffee.com/en/)
 
 # WORTH KNOWING
-
-~~As you could see in the [Overview](#overview) there is one package missing in openSUSE - `isolinux`. What does it mean? You won't be able to generate `undionly.kpxe` file which is required to run iPXE on BIOS systems. If you want to do that, you have to use (rpi4cluster)[https://rpi4cluster.com/ipxe/] guide using Ubuntu (I know that package exists there) and then copy that file. Maybe in the future I'll find a way to make that file but now I don't have time and knowledge how to do this.~~
-
 If you want to configure the **SAMBA SERVER** while using a different Linux Account than the one already created you have to make new a LINUX ACCOUNT, e.g.:
 
 Your default account is `pxe-admin`. So when you create samba server, you **HAVE TO** put `pxe-admin` as username, because it's stored in the variable `$smb_username`. So looks like this:
@@ -105,9 +102,7 @@ I think that's all. One more time - if you have any questions - feel free to ask
 Have a good day and I wish you a lot of Windows installations and disks clones haha.
 
 # KNOWN ISSUES
-- ~~The custom Samba share name doensn't work~~
-- ~~iPXE can't load due to a background image - so if you don't need a background image skip this step~~
-- ~~Generating Windows `.ipxe` file is broken (idk why, it was working earlier 🤔)~~
+So far so good.
 
 # TO DO
 - Find a way to download the latest `.iso` files of Windows 10 and 11 and other OSes/softwares
@@ -121,3 +116,9 @@ Have a good day and I wish you a lot of Windows installations and disks clones h
 - Checking if samba username is present in system - if not then script will ask for creating new account
 - And things I have no idea about (for now) 😝
 - ~~Find a way to generate `.kpxe` file~~ [DONE]
+
+# OLDER ISSUES
+~~As you could see in the [Overview](#overview) there is one package missing in openSUSE - `isolinux`. What does it mean? You won't be able to generate `undionly.kpxe` file which is required to run iPXE on BIOS systems. If you want to do that, you have to use (rpi4cluster)[https://rpi4cluster.com/ipxe/] guide using Ubuntu (I know that package exists there) and then copy that file. Maybe in the future I'll find a way to make that file but now I don't have time and knowledge how to do this.~~
+- ~~The custom Samba share name doensn't work~~
+- ~~iPXE can't load due to a background image - so if you don't need a background image skip this step~~
+- ~~Generating Windows `.ipxe` file is broken (idk why, it was working earlier 🤔)~~
