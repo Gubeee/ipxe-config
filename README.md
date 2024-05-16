@@ -119,5 +119,5 @@ Have a good day and I wish you a lot of Windows installations and disks clones h
 - Add [TRUE/FALSE] variables instead of checking if file exists [IN PROGRESS]
 - git clone only README file or check if in same path as `.sh` file is `.md` file or smth
 - Checking if samba username is present in system - if not then script will ask for creating new account
-~~- Find a way to generate `.kpxe` file~~ [DONE]
+- ~~Find a way to generate `.kpxe` file~~ [DONE]
 - And (for now) things I have no idea about 😝
