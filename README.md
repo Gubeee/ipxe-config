@@ -116,8 +116,8 @@ Have a good day and I wish you a lot of Windows installations and disks clones h
 - Add more options to PXE such as Hirens, MEMTEST and similar
 - Make a script prettier
 - Migration to Kea DHCP
-- Better DHCP configuration function
-- Add [TRUE/FALSE] variables instead of checking if file exists
+- Better DHCP configuration function [IN PROGRESS]
+- Add [TRUE/FALSE] variables instead of checking if file exists [IN PROGRESS]
 - git clone only readfile or check if in same path as `.sh` file is `.md` file or smth
 - Checking if samba username is present in system - if not then script will ask for creating new account
 - And (for now) things I have no idea about 😝
