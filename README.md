@@ -1,4 +1,4 @@
-I messed up and didn't make a .tmp file with unchecked version of script! If you want to download it, try again tomorrow or when this message disappear!!
+I messed up and didn't make a .tmp file with unchecked version of script! If you want to download it, try again tomorrow, when this message disappear or don't select MemTest!!
 
 # OVERVIEW
 ### All required packages
