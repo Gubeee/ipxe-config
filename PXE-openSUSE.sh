@@ -846,7 +846,7 @@ function os_down(){
 
     if [ $file_mem == "TRUE" ]
     then
-        cp /usr/share/syslinux/memtest $path/Installers/Misc/MemTest
+        cp /usr/share/syslinux/memdisk $path/Installers/Misc/MemTest
         curl 'https://memtest.org/download/v7.00/mt86plus_7.00_64.iso.zip' \
         -H 'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7' \
         -H 'Accept-Language: pl-PL,pl;q=0.9,en-US;q=0.8,en;q=0.7' \
