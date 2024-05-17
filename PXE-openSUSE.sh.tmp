@@ -373,20 +373,48 @@ function samba_config(){
         echo -en "Enter username: "
         read smb_username
 
-        while [ $smb_proc != 1 ] # If $smb_proc is different than 1 that means 'smbpasswd' output is an error. 
-        do    
-            smbpasswd -a $smb_username
-            if [ $? -ne 0 ]
+        if id -u "$smb_username" > /dev/null 2>&1
+        then
+            while [ $smb_proc != 1 ] # If $smb_proc is different than 1 that means 'smbpasswd' output is an error. 
+            do    
+                smbpasswd -a $smb_username
+                if [ $? -ne 0 ]
+                then
+                    echo -e "${RED_BOLD}'smbpasswd' returned erorr. Please try again...${NC}"
+                    smb_proc=0
+                else
+                    echo -en "${CYAN}Please, enter the same password. It'll be used in Windows Automation Script:${NC} "
+                    read smb_passwd # This needed for autorun 'setup.exe' file in Windows Automation Script. If you put wrong password, Win PE will automatycally reboot!
+                    smb_proc=1 # If $smb_proc is 1 that means everything went well
+                fi
+            done
+        else
+            echo -en "${RED}User ${smb_username} isn't exist in system! Would you like to create new account? (Y/N):${NC} "
+            read choise
+            if [ $choise == "Y" ] || [ $choise == "y" ] || [ $choise == "T" ] || [ $choise == "t" ]
             then
-                echo -e "${RED_BOLD}'smbpasswd' returned erorr. Please try again...${NC}"
-                smb_proc=0
+                useradd -m $smb_username
+
+                while [ $smb_proc != 1 ] # If $smb_proc is different than 1 that means 'smbpasswd' output is an error. 
+                do    
+                    smbpasswd -a $smb_username
+                    if [ $? -ne 0 ]
+                    then
+                        echo -e "${RED_BOLD}'smbpasswd' returned erorr. Please try again...${NC}"
+                        smb_proc=0
+                    else
+                        echo -en "${CYAN}Please, enter the same password. It'll be used in Windows Automation Script:${NC} "
+                        read smb_passwd # This needed for autorun 'setup.exe' file in Windows Automation Script. If you put wrong password, Win PE will automatycally reboot!
+                        smb_proc=1 # If $smb_proc is 1 that means everything went well
+                    fi
+                done
+            elif [ $choise == "N" ] || [ $choise == "n" ] || [[ -z $choise ]]
+            then
+                echo -e "${RED}Can not configure Samba! Please try again!${NC}"
             else
-                echo -en "${CYAN}Please, enter the same password. It'll be used in Windows Automation Script:${NC} "
-                read smb_passwd # This needed for autorun 'setup.exe' file in Windows Automation Script. If you put wrong password, Win PE will automatycally reboot!
-                smb_proc=1 # If $smb_proc is 1 that means everything went well
+                echo -e "${RED}Can not configure Samba! Please try again!${NC}"
             fi
-        done
-        
+        fi
         echo -en "${GREEN}User created. Press ENTER to continue...${NC}"
         read -n 1 -r -s
     fi
