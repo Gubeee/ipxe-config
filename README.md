@@ -1,5 +1,5 @@
 # WHAT'S NEW?
-(05.2024) Added support for Memtest and Hiren's [BIOS ONLY!]. If you want to add support for other softwares please let me know! (If you want to use this version simply download .tmp file and then rename it to `PXE-openSUSE.sh`) Couldn't check if Hiren's is working due to small amount of RAM...
+(05.2024) Added support for Memtest and Hiren's [BIOS ONLY!]. If you want to add support for other softwares please let me know! (If you want to use this version simply download .tmp file and then rename it to `PXE-openSUSE.sh`) Couldn't check if Hiren's is working due to small amount of RAM. Added `if` which check if username provided in samba config exist in the os.
 
 # OVERVIEW
 ### All required packages
