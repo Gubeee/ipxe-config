@@ -50,7 +50,7 @@ NC='\033[0m'
 # Main Menu Print Function
 function intro(){
     clear
-    
+
     path_sh="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)" # Getting path to script, where SHOULD BE stored all of the data (Win10/11 Installation Files, bg.img, etc.). For more information chceck README.md and look on file tree img.
 
     echo -e "${BLUE}---------- PXE Configuration Script ----------${NC}"
@@ -87,7 +87,7 @@ function config_start(){
     echo "S. Starting Services"
     echo "D. Downloading Packages"
     echo "E. Exit"
-    
+
     read -p "Select one option: " choise
 
     # Case for choose which option is chosen by user
@@ -143,7 +143,7 @@ function root_folder(){
     path_apache=$path       # Setting $path for Apache2 server.
     path_smb=$path          # Setting $path for Samba server. 
     path_nfs=$path          # Setting $path for NFS server.
-    
+
     echo -en "${GREEN}Press ENTER to continue...${NC}"
     read -n 1 -r -s
 }
@@ -516,7 +516,7 @@ function ipxe_config(){
                 wget https://github.com/ipxe/wimboot/releases/latest/download/wimboot # Idk why there is 'wget' instead of 'git clone' but - one more time - I saw this in tutorial and I putted it there ;P
             fi
         fi
-        
+
         echo -e "${CYAN}Creating 'embed.ipxe' file...${NC}"
         touch $path/Other/ipxe/src/embed.ipxe # 'embed.ipxe' file is a file required for custom build of '.efi' or/and '.kpxe' files. Without this file, you can build only stock build and later you would have to write iPXE commands
 
@@ -580,7 +580,7 @@ function ipxe_config(){
             make bin/undionly.kpxe EMBED=embed.ipxe 2>&1 | pv -l > $path/make-kpxe.log      # 'pv' command informs us that script isn't stuck
             mv bin/undionly.kpxe $path
         fi
-        
+
         # 'main.ipxe' file questions
         echo -e "${CYAN}Checking if expected path is present...${NC}"
         if [ ! -d $path/ipxe-files ]
@@ -598,7 +598,7 @@ function ipxe_config(){
                 file_win10="TRUE"
                 touch $path/ipxe-files/win10.ipxe
             fi
-            
+
             echo -en "${CYAN}Would you like to create Windows 11 config file? (Y/N):${NC} " 
             read choise
             if [ $choise == "Y" ] || [ $choise == "y" ] || [ $choise == "T" ] || [ $choise == "t" ] || [ -z $choise ]
@@ -673,10 +673,10 @@ function ipxe_config(){
                 then
                     echo "  item clone    CloneZilla" >> $path/ipxe-files/main.ipxe
                 fi
-
+    
                 # Miscellaneous options which you can choose in iPXE bootloader
                 echo "  item --gap -- -------- Misc --------" >> $path/ipxe-files/main.ipxe
-                
+
                 # Script is checking if 'mem.ipxe' file is present. It depends on earlier user choise.
                 if [ $file_mem == "TRUE" ]
                 then
@@ -693,7 +693,7 @@ function ipxe_config(){
                 echo "" >> $path/ipxe-files/main.ipxe
                 echo 'choose --default return --timeout 5000 target && goto ${target}' >> $path/ipxe-files/main.ipxe
                 echo "" >> $path/ipxe-files/main.ipxe
-                
+
                 # Writing informations to 'target' tab.
                 # Script is checking if 'win10.ipxe' file is present. It depends on earlier user choise.
                 if [ $file_win10 == "TRUE" ]
@@ -873,7 +873,7 @@ function ipxe_config(){
                 echo -e "${CYAN}Copying 'boot.wim' file to root folder...${NC}"
                 rsync -a --info=progress2 $path_sh/boot.wim $path/Other/boot.wim
             fi
-            
+
             echo -en "${GREEN}Everything OK. Press ENTER to continue...${NC}"
             read -n 1 -r -s
             echo ""
@@ -982,14 +982,14 @@ function service_start(){
     if [ $package_down_status == 1 ]
     then
         echo -e "${CYAN}Checking if services are working...${NC}"
-        
+
         # Checking if DHCP service is active
         if ! systemctl --quiet is-active dhcpd.service
         then
             systemctl start dhcpd.service
             systemctl restart dhcpd.service
         fi
-        
+
         # Checking if Apache2 service is active
         if ! systemctl --quiet is-active apache2
         then
@@ -1055,7 +1055,7 @@ function misc_options(){
     echo "E. Exit"
 
     read -p "Select option: " choise
-    
+
     case $choise in
         1) readme_file ;;
         E|e) exit_fn ;;
