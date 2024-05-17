@@ -1,3 +1,6 @@
+# WHAT'S NEW?
+(05.2024) Added support for Hiren's boot and Memtest. If you want to add support for other softwares please let me know!
+
 # OVERVIEW
 ### All required packages
 1. iPXE
@@ -107,7 +110,7 @@ So far so good.
 # TO DO
 - Find a way to download the latest `.iso` files of Windows 10 and 11 and other OSes/softwares
 - Add GUI
-- Add more options to PXE such as Hirens, MEMTEST and similar [IN PROGRESS]
+- Add support for Linux Distros
 - Make the script prettier
 - Migration to Kea DHCP
 - Better DHCP configuration function [IN PROGRESS]
@@ -116,6 +119,7 @@ So far so good.
 - And things I have no idea about (for now) 😝
 - ~~Find a way to generate `.kpxe` file~~ [DONE]
 - ~~Add [TRUE/FALSE] variables instead of checking if the file exists~~ [DONE]
+- ~~Add more options to PXE such as Hirens, MEMTEST and similar~~ [DONE]
 
 # OLDER ISSUES
 ~~As you could see in the [Overview](#overview) there is one package missing in openSUSE - `isolinux`. What does it mean? You won't be able to generate `undionly.kpxe` file which is required to run iPXE on BIOS systems. If you want to do that, you have to use (rpi4cluster)[https://rpi4cluster.com/ipxe/] guide using Ubuntu (I know that package exists there) and then copy that file. Maybe in the future I'll find a way to make that file but now I don't have time and knowledge how to do this.~~
