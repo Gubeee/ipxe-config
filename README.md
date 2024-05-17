@@ -1,5 +1,5 @@
 # WHAT'S NEW?
-(05.2024) Added support for Hiren's boot and Memtest. If you want to add support for other softwares please let me know!
+(05.2024) Added support for Memtest [BIOS ONLY!]. If you want to add support for other softwares please let me know!
 
 # OVERVIEW
 ### All required packages
