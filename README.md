@@ -111,7 +111,7 @@ Have a good day and I wish you a lot of Windows installations and disks clones h
 - Find a way to download the latest `.iso` files of Windows 10 and 11 and other OSes/softwares
 - Add GUI
 - Add support for Linux Distros
-- Make the script prettier
+- Make the script prettier [IN PROGRESS]
 - Migration to Kea DHCP
 - Better DHCP configuration function [IN PROGRESS]
 - Migration to python
