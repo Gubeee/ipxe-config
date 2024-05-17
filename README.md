@@ -105,7 +105,7 @@ I think that's all. One more time - if you have any questions - feel free to ask
 Have a good day and I wish you a lot of Windows installations and disks clones haha.
 
 # KNOWN ISSUES
-- Hiren's boot image won't load.
+- Hiren's boot image won't load using VirtualBox with 5GB of RAM on VM.
 
 # TO DO
 - Find a way to download the latest `.iso` files of Windows 10 and 11 and other OSes/softwares
