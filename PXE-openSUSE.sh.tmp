@@ -47,7 +47,7 @@ NC='\033[0m'
 # ------ End of Global Variables ------ 
 
 # ------ Functions ------ 
-# Main Menu Print Function
+# ------ Main Menu Print Function ------
 function intro(){
     clear
 
@@ -77,7 +77,9 @@ function intro(){
         intro
     fi
 }
+# ------ End of Main Menu Print Function ------
 
+# ------ Configuration Start Function ------
 # If user pressed 1 as a option in the first function this function is printing new menu with all functions needed to be setup for PXE work.
 function config_start(){
     clear
@@ -99,7 +101,9 @@ function config_start(){
         *) invalid_param_config_start ;;        #Invalid Parameter Function
     esac
 }
+# ------ End of Configuration Start Function ------
 
+# ------ Full Installation Function ------
 # Setting up PXE Server from scratch
 function full_install(){
     clear
@@ -117,7 +121,9 @@ function full_install(){
     service_start   # Go to service_start function
     misc_options    # Go to misc_options function
 }
+# ------ End of Full Installation Function ------
 
+# ------ Root Folder Function ------
 # Creating root folder for PXE files
 function root_folder(){
     clear
@@ -147,7 +153,9 @@ function root_folder(){
     echo -en "${GREEN}Press ENTER to continue...${NC}"
     read -n 1 -r -s
 }
+# ------ End of root Folder Function ------
 
+# ------ File Tree Function ------
 # Creating files tree
 function file_tree(){
     clear 
@@ -168,7 +176,9 @@ function file_tree(){
     echo -en "${GREEN}Tree succesfully created. Press ENTER to continue...${NC}"
     read -n 1 -r -s
 }
+# ------ End of File Tree Function ------
 
+# ------ DHCP Configuration Function ------
 # DHCP Configuration
 function dhcp_config(){
     clear
@@ -307,7 +317,9 @@ function dhcp_config(){
         read -n 1 -r -s
     fi
 }
+# ------ End of DHCP Configuration Function ------
 
+# ------ TFTP Configuration Function ------
 # TFTP Configuration
 function tftp_config(){
     clear
@@ -330,7 +342,9 @@ function tftp_config(){
         read -n 1 -r -s
     fi
 }
+# ------ End of TFTP Configuration Function ------
 
+# ------ Samba Configuration Function ------
 # Samba Configuration
 function samba_config(){
     clear
@@ -419,7 +433,9 @@ function samba_config(){
         read -n 1 -r -s
     fi
 }
+# ------ End of Samba Configuration Function ------
 
+# ------ Apache Configuration Function ------
 # Apache Configuration
 function apache_config(){
     clear
@@ -467,7 +483,9 @@ function apache_config(){
     echo -en "${GREEN}Everything OK. Press ENTER to continue...${NC}"
     read -n 1 -r -s
 }
+# ------ End of Apache Configuration Function ------
 
+# ------ NFS Configuration Function ------
 # NFS Configuration
 function nfs_config(){
     clear
@@ -488,7 +506,9 @@ function nfs_config(){
         read -n 1 -r -s
     fi
 }
+# ------ End of NFS Configuration Function ------
 
+# ------ iPXE Configuration Function ------
 # Download and configure iPXE
 function ipxe_config(){
     clear
@@ -880,7 +900,9 @@ function ipxe_config(){
         fi
     fi
 }
+# ------ End of iPXE Configuration Function ------
 
+# ------ OS Download Function ------
 # Copying and downloading OS
 function os_down(){
     clear
@@ -958,7 +980,9 @@ function os_down(){
     read -n 1 -r -s
     echo ""
 }
+# ------ End of OS Download Function ------
 
+# ------ Packages Download Function ------
 # Downloading reqiured packages for PXE work
 function pack_down(){
     clear
@@ -975,7 +999,9 @@ function pack_down(){
     echo -en "${GREEN}All packages downloaded. Press ENTER to continue...${NC}"
     read -n 1 -r -s
 }
+# ------ End of Packages Download Function ------
 
+# ------ Service Start Function ------
 # Starting required services and adding them to autostart
 function service_start(){
     clear
@@ -1046,8 +1072,10 @@ function service_start(){
         config_start
     fi
 }
+# ------ End of Service Start Function ------
 
 # Misc options
+# ------ Misc Options Function ------
 function misc_options(){
     clear
     echo -e "${BLUE}------ Misc Options ------${NC}"
@@ -1094,7 +1122,9 @@ function invalid_param_misc_options(){
     sleep 3
     misc_options
 }
+# ------ End of Misc Options Function ------
 
+# ------ Program ------
 if [ $EUID -ne 0 ]
 then
     echo "Script should be run as su. Try login to su account or run script with sudo."
@@ -1103,3 +1133,4 @@ then
 else
     intro
 fi
+# ------ End of Program ------
