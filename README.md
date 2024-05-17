@@ -114,13 +114,13 @@ Have a good day and I wish you a lot of Windows installations and disks clones h
 - Make the script prettier
 - Migration to Kea DHCP
 - Better DHCP configuration function [IN PROGRESS]
-- Checking if samba username is present in system - if not then script will ask for creating new account
 - Migration to python
 - And things I have no idea about (for now) 😝
 - ~~Find a way to generate `.kpxe` file~~ [DONE]
 - ~~Add [TRUE/FALSE] variables instead of checking if the file exists~~ [DONE]
 - ~~Add more options to PXE such as Hirens, MEMTEST and similar~~ [DONE]
 - ~~git clone only the README file or check if in same path as `.sh` there is `.md` file or smth~~ [DONE]
+- ~~Checking if samba username is present in system - if not then script will ask for creating new account~~ [DONE]
 
 # OLDER ISSUES
 ~~As you could see in the [Overview](#overview) there is one package missing in openSUSE - `isolinux`. What does it mean? You won't be able to generate `undionly.kpxe` file which is required to run iPXE on BIOS systems. If you want to do that, you have to use (rpi4cluster)[https://rpi4cluster.com/ipxe/] guide using Ubuntu (I know that package exists there) and then copy that file. Maybe in the future I'll find a way to make that file but now I don't have time and knowledge how to do this.~~
