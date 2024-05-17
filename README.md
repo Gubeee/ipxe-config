@@ -1,5 +1,5 @@
 # WHAT'S NEW?
-(05.2024) Added support for Memtest [BIOS ONLY!]. If you want to add support for other softwares please let me know!
+(05.2024) Added support for Memtest [BIOS ONLY!]. If you want to add support for other softwares please let me know! (If you want to use this version simply download .tmp file and then rename it to `PXE-openSUSE.sh`)
 
 # OVERVIEW
 ### All required packages
