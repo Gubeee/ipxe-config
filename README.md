@@ -115,6 +115,7 @@ Have a good day and I wish you a lot of Windows installations and disks clones h
 - Migration to Kea DHCP
 - Better DHCP configuration function [IN PROGRESS]
 - Checking if samba username is present in system - if not then script will ask for creating new account
+- Migration to python
 - And things I have no idea about (for now) 😝
 - ~~Find a way to generate `.kpxe` file~~ [DONE]
 - ~~Add [TRUE/FALSE] variables instead of checking if the file exists~~ [DONE]
