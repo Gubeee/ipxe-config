@@ -194,10 +194,9 @@ function pxe_tree(){
     mkdir $path/ipxe-files
     mkdir -p $path/Other/ipxe
 
-    for element in "${bools[@]}"
+    for index in "${!bools[@]}"
     do
-        IFS=':' read -ra parts <<< "$element"
-        echo "${parts[0]} + ${parts[1]}"
+        IFS=':' read -ra parts <<< "${bools[$index]}"
         if [ $parts[1] == "TRUE" ]
         then
             mkdir $path/Installers/$parts[0]
