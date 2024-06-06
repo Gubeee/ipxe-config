@@ -174,9 +174,11 @@ function pxe_tree(){
             if [ $choise == "Y" ] || [ $choise == "y" ] || [ $choise == "T" ] || [ $choise == "t" ]
             then
                 bools[$elements]="${parts[0]}:TRUE"
+                break
             elif [ $choise == "N" ] || [ $choise == "n" ]
             then
                 bools[$elements]="${parts[0]}:FALSE"
+                break
             else
                 echo -e "${RED}Invalid option! Try again.${NC}"
                 $choise=""
@@ -245,19 +247,6 @@ function conf_dhcp(){
         fi
     done
 
-    # If content of 'mask' is empty then loop is working until 'mask' have an content inside
-    while [ -z "$mask" ]
-    do
-        read -p "Enter a network mask: " mask
-        if [[ $mask =~ ^(255\.){3}(255|254|252|248|240|224|192|128|0)$|^255\.(255|254|252|248|240|224|192|128|0)\.0\.0$|^255\.255\.(255|254|252|248|240|224|192|128|0)\.0$|^255\.255\.255\.(255|254|252|248|240|224|192|128|0)$ ]]
-        then
-            echo "Dummy Echo" > /dev/null
-        else
-            echo -e "${RED_BOLD}Invalid network mask!.${NC}"
-            mask=""
-        fi
-    done
-
     # If content of 'srv' is empty then loop is working until 'srv' have an content inside
     while [ -z "$srv" ]
     do
@@ -271,6 +260,7 @@ function conf_dhcp(){
         fi
     done
 
+    # If content of 'range' is empty then loop is working until 'range' have an content inside
     while [ -z "$range" ]
     do
         read -e -p "Enter range of DHCP addresses (ie. 192.168.50.3 192.168.50.254): " range
@@ -280,6 +270,19 @@ function conf_dhcp(){
         else
             echo -e "${RED_BOLD}Invalid range.${NC}"
             range=""
+        fi
+    done
+
+    # If content of 'mask' is empty then loop is working until 'mask' have an content inside
+    while [ -z "$mask" ]
+    do
+        read -p "Enter a network mask: " mask
+        if [[ $mask =~ ^(255\.){3}(255|254|252|248|240|224|192|128|0)$|^255\.(255|254|252|248|240|224|192|128|0)\.0\.0$|^255\.255\.(255|254|252|248|240|224|192|128|0)\.0$|^255\.255\.255\.(255|254|252|248|240|224|192|128|0)$ ]]
+        then
+            echo "Dummy Echo" > /dev/null
+        else
+            echo -e "${RED_BOLD}Invalid network mask!.${NC}"
+            mask=""
         fi
     done
 
@@ -359,6 +362,7 @@ function conf_tftp(){
 function conf_smb(){
     clear
     check_smb # Go to check_smb function
+    smb_proc=0 # Auxiliary variable for 'while' loop
     echo -en "${CYAN}Default share name is 'pxe-files'. Would you like to change it? (Y/N):${NC} "
     read choise
     if [ $choise == "Y" ] || [ $choise == "y" ] || [ $choise == "T" ] || [ $choise == "t" ]
@@ -438,6 +442,7 @@ function conf_smb(){
 
 # Apache Server Configuration
 function conf_apache(){
+    clear
     check_apache # Go to conf_apache function
     touch /etc/apache2/vhosts.d/pxe.conf
     if [ ! -e /etc/apache2/vhosts.d/pxe.conf ]
