@@ -164,26 +164,27 @@ function pxe_tree(){
     path_nfs=$path          # Setting $path for NFS server.
 
     clear
-    for element in "${bools[@]}" # For loop is going through all elements in bools array
+    for index in "${!bools[@]}" # For loop is going through all elements in bools array
     do
-        IFS=':' read -ra parts <<< "$element" # This command is splitting values of bools array by ':' character. In bools array there are a name:value types, so i.e if we have a "Windows10:FALSE" then 'Windows10' = name and 'FALSE' = value. So our 'name' = '$parts[0]' and our 'value' = '$parts[1]'.
+        IFS=':' read -ra parts <<< "{bools[$index]}" # This command is splitting values of bools array by ':' character. In bools array there are a name:value types, so i.e if we have a "Windows10:FALSE" then 'Windows10' = name and 'FALSE' = value. So our 'name' = '$parts[0]' and our 'value' = '$parts[1]'.
         echo -e "Would you like to add ${parts[0]} support to your firmware? (Y/N):"
         read choise
         while [ -z $choise ]
         do
             if [ $choise == "Y" ] || [ $choise == "y" ] || [ $choise == "T" ] || [ $choise == "t" ]
             then
-                bools[$elements]="${parts[0]}:TRUE"
+                bools[$index]="${parts[0]}:TRUE"
                 break
             elif [ $choise == "N" ] || [ $choise == "n" ]
             then
-                bools[$elements]="${parts[0]}:FALSE"
+                bools[$index]="${parts[0]}:FALSE"
                 break
             else
                 echo -e "${RED}Invalid option! Try again.${NC}"
                 $choise=""
             fi
         done
+        echo "${parts[0]} ${parts[1]}"
     done
 
     mkdir $path
@@ -194,6 +195,7 @@ function pxe_tree(){
     for element in "${bools[@]}"
     do
         IFS=':' read -ra parts <<< "$element"
+        echo "${parts[0]} + ${parts[1]}"
         if [ $parts[1] == "TRUE" ]
         then
             mkdir $path/Installers/$parts[0]
