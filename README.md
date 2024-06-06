@@ -1,4 +1,5 @@
 # WHAT'S NEW?
+(06.2024) Dropped support for Hiren's because I can't check if it works or no. Re-writed code for better performance.
 (05.2024) Added support for Memtest and Hiren's [BIOS ONLY!]. If you want to add support for other softwares please let me know! (If you want to use this version simply download .tmp file and then rename it to `PXE-openSUSE.sh`) Couldn't check if Hiren's is working due to small amount of RAM. Added `if` which check if username provided in samba config exist in the os.
 
 # OVERVIEW
@@ -48,22 +49,7 @@ Now I want to say thank you to:
 # LICENSE
 I don't know what license I should choose so I'll say this - feel free to use this script, make changes or whatever you want but make sure you don't break the license rules of the corporations/people above.
 
-If you appreciate my work [you can buy me a coffee](https://help.buymeacoffee.com/en/)
-
 # WORTH KNOWING
-If you want to configure the **SAMBA SERVER** while using a different Linux Account than the one already created you have to make new a LINUX ACCOUNT, e.g.:
-
-Your default account is `pxe-admin`. So when you create samba server, you **HAVE TO** put `pxe-admin` as username, because it's stored in the variable `$smb_username`. So looks like this:
-
-1. You insert a username which is already created
-2. The Script uses `smbpasswd $smb_username -a` command
-3. Then it asks for a password for samba share
-4. If the password is wrong or there is no account with `$smb_username` name, the srcipt return an error and you have to re-run the script
-
-And now we are getting to my favourite section:
-
----------- Windows Lack of Technology 🤣 ----------
-
 Because of Microsoft's brilliant technological thought I didn't find a good way to download the latest .iso files of both Windows 10 and 11. For now you HAVE TO download them manually and put successively in:
 
 	Windows 10 installation files - /home/$USER/PXE-DATA/Win10
@@ -105,7 +91,7 @@ I think that's all. One more time - if you have any questions - feel free to ask
 Have a good day and I wish you a lot of Windows installations and disks clones haha.
 
 # KNOWN ISSUES
-- Hiren's boot image won't load using VirtualBox with 5GB of RAM on VM.
+So far so good 😆
 
 # TO DO
 - Find a way to download the latest `.iso` files of Windows 10 and 11 and other OSes/softwares
@@ -114,7 +100,7 @@ Have a good day and I wish you a lot of Windows installations and disks clones h
 - Make the script prettier [IN PROGRESS]
 - Migration to Kea DHCP
 - Better DHCP configuration function [IN PROGRESS]
-- Migration to python
+- Migration to python [IN PROGRESS - I'll make a new repo for this]
 - And things I have no idea about (for now) 😝
 - ~~Find a way to generate `.kpxe` file~~ [DONE]
 - ~~Add [TRUE/FALSE] variables instead of checking if the file exists~~ [DONE]
