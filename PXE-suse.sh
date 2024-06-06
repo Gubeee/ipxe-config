@@ -52,7 +52,7 @@ function check(){
 
         if [ $choise == 'Y' ] || [ $choise == 'y' ] || [ $choise == 'T' ] || [ $choise == 't' ] || [ -z $choise ]
         then
-            intro()
+            intro
         else
             exit
         fi
@@ -169,13 +169,14 @@ function pxe_tree(){
         IFS=':' read -ra parts <<< "$element" # This command is splitting values of bools array by ':' character. In bools array there are a name:value types, so i.e if we have a "Windows10:FALSE" then 'Windows10' = name and 'FALSE' = value. So our 'name' = '$parts[0]' and our 'value' = '$parts[1]'.
         echo -e "Would you like to add ${parts[0]} support to your firmware? (Y/N):"
         read choise
-        while [ -z $choise]
-            if [ $choise == "Y" ] || [ $choise == "y" ] || [ $choise == "T" ] || [ $choise == "t" ] || [ -z $choise ]
+        while [ -z $choise ]
+        do
+            if [ $choise == "Y" ] || [ $choise == "y" ] || [ $choise == "T" ] || [ $choise == "t" ]
             then
-                $parts[1]='TRUE'
+                bools[$elements]="${parts[0]}:TRUE"
             elif [ $choise == "N" ] || [ $choise == "n" ]
             then
-                $parts[1]='FALSE'
+                bools[$elements]="${parts[0]}:FALSE"
             else
                 echo -e "${RED}Invalid option! Try again.${NC}"
                 $choise=""
@@ -540,3 +541,21 @@ function check_nfs(){
         exit
     fi
 }
+
+function pack_down(){
+    clear
+    echo -e "${CYAN_BOLD}Refresing and updating zypper...${NC}"
+    zypper ref
+    zypper up -y
+    clear
+    echo -e "${CYAN_BOLD}Downloading packages required for iPXE...${NC}"
+    zypper in -y make gcc binutils perl mtools mkisofs syslinux liblzma5 xz-devel
+    clear
+    echo -e "${CYAN_BOLD}Downloading services required for PXE Server...${NC}"
+    zypper in -y yast2-dhcp-server yast2-tftp-server apache2 git yast2-nfs-server tftp dhcp-server samba yast2-samba-server nfs-kernel-server pv
+    package_down_status=1
+    echo -en "${GREEN}All packages downloaded. Press ENTER to continue...${NC}"
+    read -n 1 -r -s
+}
+
+check
