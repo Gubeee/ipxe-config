@@ -163,6 +163,11 @@ function pxe_tree(){
     path_smb=$path          # Setting $path for Samba server. 
     path_nfs=$path          # Setting $path for NFS server.
 
+    mkdir $path
+    mkdir $path/Installers
+    mkdir $path/ipxe-files
+    mkdir -p $path/Other/ipxe
+
     clear
     for index in "${!bools[@]}" # For loop is going through all elements in bools array
     do
@@ -175,6 +180,7 @@ function pxe_tree(){
             then
                 bools[$index]="${parts[0]}:TRUE"
                 IFS=':' read -ra parts <<< "${bools[$index]}" # Update parts with the new value from bools
+                mkdir $path/Installers/$parts[0]
                 break
             elif [ $choise == "N" ] || [ $choise == "n" ]
             then
@@ -185,26 +191,6 @@ function pxe_tree(){
                 echo -e "${RED}Invalid option! Try again.${NC}"
             fi
         done
-        echo "${parts[0]} ${parts[1]}"
-    done
-
-
-    mkdir $path
-    mkdir $path/Installers
-    mkdir $path/ipxe-files
-    mkdir -p $path/Other/ipxe
-
-    for index in "${!bools[@]}"
-    do
-        IFS=':' read -ra parts <<< "${bools[$index]}"
-        if [ $parts[1] == "TRUE" ]
-        then
-            mkdir $path/Installers/$parts[0]
-            if [ $parts[0] == "CloneZilla" ] && [ $parts[1] == "TRUE" ]
-            then
-                mkdir $path/nfs
-            fi
-        fi
     done
 
     echo -en "${GREEN}Press ENTER to continue...${NC}"
