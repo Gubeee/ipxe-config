@@ -126,7 +126,10 @@ function full_install(){
     conf_tftp       # Go to tftp_config function
     conf_smb        # Go to samba_config function
     conf_apache     # Go to apache_config function
-    conf_nfs        # Go to nfs_config function
+    if [ -d $path/Installers/Clonezilla ]
+    then
+        conf_nfs        # Go to nfs_config function
+    fi
     # ------------------------------------------------
     ipxe_config     # Go to ipxe_config function
     # ------------------------------------------------
@@ -180,7 +183,7 @@ function pxe_tree(){
             then
                 bools[$index]="${parts[0]}:TRUE"
                 IFS=':' read -ra parts <<< "${bools[$index]}" # Update parts with the new value from bools
-                mkdir $path/Installers/$parts[0]
+                mkdir $path/Installers/${parts[0]}
                 break
             elif [ $choise == "N" ] || [ $choise == "n" ]
             then
@@ -358,13 +361,13 @@ function conf_smb(){
     then
         read -p "Enter share name: " usr_smb_name
         smb_name=$usr_smb_name # Setting Samba share name as $usr_smb_name
-    elif [ $choise == "N" ] || [ $choise == "n" ] || [ -z $choise ]
+    elif [ $choise == "N" ] || [ $choise == "n" ] || [[ -z $choise ]]
     then
         smb_name="pxe-files" # Setting default Samba share name
     else
         echo -e "${RED_BOLD}Undefined option! Let's start over...${NC}"
         sleep 3
-        samba_config
+        conf_smb
     fi
     echo -e "${CYAN}Writing informations to config file...${NC}"
 
@@ -473,9 +476,10 @@ function conf_apache(){
 # NFS Server Configuration
 function conf_nfs(){
     check_nfs # Go to check_nfs function
+    mkdir $path/NFS
     echo -e "${CYAN}Writing informations to config file..."
     # Writing '$path/nfs' to exports file. This will be accessible from all PC's with IP from $net network.
-    echo "$path/nfs ${net}/${mask}(rw,sync,no_subtree_check)" > /etc/exports
+    echo "$path/NFS ${net}/${mask}(rw,sync,no_subtree_check)" > /etc/exports
     exportfs -a
 
     echo -en "${GREEN}Everything OK. Press ENTER to continue...${NC}"
