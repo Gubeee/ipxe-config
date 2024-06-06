@@ -361,7 +361,7 @@ function conf_smb(){
     then
         read -p "Enter share name: " usr_smb_name
         smb_name=$usr_smb_name # Setting Samba share name as $usr_smb_name
-    elif [ $choise == "N" ] || [ $choise == "n" ] || [[ -z $choise ]]
+    elif [ $choise == "N" ] || [ $choise == "n" ]
     then
         smb_name="pxe-files" # Setting default Samba share name
     else
@@ -421,8 +421,6 @@ function conf_smb(){
             done
         elif [ $choise == "N" ] || [ $choise == "n" ] || [[ -z $choise ]]
         then
-            echo -e "${RED}Can not configure Samba! Please try again!${NC}"
-        else
             echo -e "${RED}Can not configure Samba! Please try again!${NC}"
         fi
     fi
