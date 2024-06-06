@@ -166,26 +166,28 @@ function pxe_tree(){
     clear
     for index in "${!bools[@]}" # For loop is going through all elements in bools array
     do
-        IFS=':' read -ra parts <<< "{bools[$index]}" # This command is splitting values of bools array by ':' character. In bools array there are a name:value types, so i.e if we have a "Windows10:FALSE" then 'Windows10' = name and 'FALSE' = value. So our 'name' = '$parts[0]' and our 'value' = '$parts[1]'.
+        IFS=':' read -ra parts <<< "${bools[$index]}" # This command is splitting values of bools array by ':' character. In bools array there are a name:value types, so i.e if we have a "Windows10:FALSE" then 'Windows10' = name and 'FALSE' = value. So our 'name' = '$parts[0]' and our 'value' = '$parts[1]'.
         echo -e "Would you like to add ${parts[0]} support to your firmware? (Y/N):"
-        read choise
-        while [ -z $choise ]
+        while :
         do
+            read choise
             if [ $choise == "Y" ] || [ $choise == "y" ] || [ $choise == "T" ] || [ $choise == "t" ]
             then
                 bools[$index]="${parts[0]}:TRUE"
+                IFS=':' read -ra parts <<< "${bools[$index]}" # Update parts with the new value from bools
                 break
             elif [ $choise == "N" ] || [ $choise == "n" ]
             then
                 bools[$index]="${parts[0]}:FALSE"
+                IFS=':' read -ra parts <<< "${bools[$index]}" # Update parts with the new value from bools
                 break
             else
                 echo -e "${RED}Invalid option! Try again.${NC}"
-                $choise=""
             fi
         done
         echo "${parts[0]} ${parts[1]}"
     done
+
 
     mkdir $path
     mkdir $path/Installers
