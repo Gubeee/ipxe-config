@@ -634,43 +634,21 @@ function conf_ipxe(){
                     echo "initrd http://${srv}/Other/boot.wim                       boot.wim" >> $path/ipxe-files/$win.ipxe
                     echo "" >> $path/ipxe-files/$win.ipxe
                     echo "boot || goto failed" >> $path/ipxe-files/$win.ipxe
+
+                    touch $path/Installers/$win/winpeshl.ini
+                    touch $path/Installers/$win/install.bat
+
+                    echo "[LaunchApps]" > $path/Installers/$win/winpeshl.ini
+                    echo '"install.bat"' >> $path/Installers/$win/winpeshl.ini
+
+                    echo "wpeinit" > $path/Installers/Windows/Win10/install.bat
+                    echo "net use \\\\$srv\\$smb_name /user:${smb_username} ${smb_passwd}" >> $path/Installers/$win/install.bat
+                    echo "\\\\$srv\\$smb_name\Installers\${win}\setup.exe" >> $path/Installers/$win/install.bat
                 done
                 ;;
             esac
         fi
     done
-
-    # Script is checking if 'win10.ipxe' file is present. It depends on earlier user choise.
-    if [ $file_win10 == "TRUE" ]
-    then
-        echo "#!ipxe" > $path/ipxe-files/win10.ipxe
-        echo "" >> $path/ipxe-files/win10.ipxe
-        echo "kernel http://${srv}/Other/wimboot gui" >> $path/ipxe-files/win10.ipxe
-        echo "" >> $path/ipxe-files/win10.ipxe
-        echo "initrd http://${srv}/Installers/Windows/Win10/winpeshl.ini    winpeshl.ini" >> $path/ipxe-files/win10.ipxe
-        echo "initrd http://${srv}/Installers/Windows/Win10/install.bat     install.bat" >> $path/ipxe-files/win10.ipxe
-        echo "initrd http://${srv}/Installers/Windows/Win10/boot/bcd        bcd" >> $path/ipxe-files/win10.ipxe
-        echo "initrd http://${srv}/Installers/Windows/Win10/boot/boot.sdi   boot.sdi" >> $path/ipxe-files/win10.ipxe
-        echo "initrd http://${srv}/Other/boot.wim                           boot.wim" >> $path/ipxe-files/win10.ipxe
-        echo "" >> $path/ipxe-files/win10.ipxe
-        echo "boot || goto failed" >> $path/ipxe-files/win10.ipxe
-    fi
-
-    # Script is checking if 'win11.ipxe' file is present. It depends on earlier user choise.
-    if [ $file_win11 == "TRUE" ]
-    then
-        echo "#!ipxe" > $path/ipxe-files/win11.ipxe
-        echo "" >> $path/ipxe-files/win11.ipxe
-        echo "kernel http://${srv}/Other/wimboot gui" >> $path/ipxe-files/win11.ipxe
-        echo "" >> $path/ipxe-files/win11.ipxe
-        echo "initrd http://${srv}/Installers/Windows/Win11/winpeshl.ini    winpeshl.ini" >> $path/ipxe-files/win11.ipxe
-        echo "initrd http://${srv}/Installers/Windows/Win11/install.bat     install.bat" >> $path/ipxe-files/win11.ipxe
-        echo "initrd http://${srv}/Installers/Windows/Win11/boot/bcd        bcd" >> $path/ipxe-files/win11.ipxe
-        echo "initrd http://${srv}/Installers/Windows/Win11/boot/boot.sdi   boot.sdi" >> $path/ipxe-files/win11.ipxe
-        echo "initrd http://${srv}/Other/boot.wim                           boot.wim" >> $path/ipxe-files/win11.ipxe
-        echo "" >> $path/ipxe-files/win11.ipxe
-        echo "boot || goto failed" >> $path/ipxe-files/win11.ipxe
-    fi
 
     # Script is checking if 'clone.ipxe' file is present. It depends on earlier user choise.
     if [ $file_clone == "TRUE" ]
@@ -693,78 +671,6 @@ function conf_ipxe(){
         echo "imgargs memdisk iso raw || read void" >> $path/ipxe-files/mem.ipxe
         echo "" >> $path/ipxe-files/mem.ipxe
         echo "boot || read void" >> $path/ipxe-files/mem.ipxe
-    fi
-
-    # Script is checking if 'hbcd.ipxe' is present. It depends on earlier user choise.
-    if [ $file_hbcd == "TRUE" ]
-    then
-        echo "#!ipxe" > $path/ipxe-files/hbcd.ipxe
-        echo "" >> $path/ipxe-files/hbcd.ipxe
-        echo "kernel http://${srv}/Installers/Misc/memdisk || read void" >> $path/ipxe-files/hbcd.ipxe
-        echo "initrd http://${srv}/Installers/Misc/Hirens/HBCD.iso || read void" >> $path/ipxe-files/hbcd.ipxe
-        echo "imgargs memdisk iso raw || read void" >> $path/ipxe-files/hbcd.ipxe
-        echo "" >> $path/ipxe-files/hbcd.ipxe
-        echo "boot || read void" >> $path/ipxe-files/hbcd.ipxe
-    fi
-
-    echo -e "${CYAN}Creating Windows Auto Startup Script...${NC}"
-    # Script is checking if 'win10.ipxe' file is present. It depends on earlier user choise.
-    if [ $file_win10 == "TRUE" ]
-    then
-        # Creating 'winpeshl.ini' and 'install.bat' files. Files name should not be changed otherwise scripts will not work.
-        touch $path/Installers/Windows/Win10/winpeshl.ini
-        touch $path/Installers/Windows/Win10/install.bat
-
-        if [ ! -e $path/Installers/Windows/Win10/winpeshl.ini ]
-        then
-            echo -e "${RED_BOLD}Can not create 'winpeshl.ini file. Please re-run script and make sure that all catalogs were sucessfully made."
-            echo -en "${RED_BOLD}Press ENTER to continue...${NC}"
-            read -n 1 -r -s
-            exit
-        else
-            echo "[LaunchApps]" > $path/Installers/Windows/Win10/winpeshl.ini
-            echo '"install.bat"' >> $path/Installers/Windows/Win10/winpeshl.ini
-        fi
-        if [ ! -e $path/Installers/Windows/Win10/install.bat ]
-        then
-            echo -e "${RED_BOLD}Can not create 'install.bat file. Please re-run script and make sure that all catalogs were sucessfully made."            
-            echo -en "${RED_BOLD}Press ENTER to continue...${NC}"
-            read -n 1 -r -s
-            exit
-        else
-            echo "wpeinit" > $path/Installers/Windows/Win10/install.bat
-            echo "net use \\\\$srv\\$smb_name /user:${smb_username} ${smb_passwd}" >> $path/Installers/Windows/Win10/install.bat
-            echo "\\\\$srv\\$smb_name\Installers\Windows\Win10\setup.exe" >> $path/Installers/Windows/Win10/install.bat
-        fi
-    fi
-
-    if [ $file_win11 == "TRUE" ]
-    then
-        # Creating 'winpeshl.ini' and 'install.bat' files. Files name should not be changed otherwise scripts will not work.
-        touch $path/Installers/Windows/Win11/winpeshl.ini
-        touch $path/Installers/Windows/Win11/install.bat
-
-        if [ ! -e $path/Installers/Windows/Win11/winpeshl.ini ]
-        then
-            echo -e "${RED_BOLD}Can not create 'winpeshl.ini file. Please re-run script and make sure that all catalogs were sucessfully made."
-            echo -en "${RED_BOLD}Services started. Press ENTER to continue...${NC}"
-            read -n 1 -r -s
-            exit
-        else
-            echo "[LaunchApps]" > $path/Installers/Windows/Win11/winpeshl.ini
-            echo '"install.bat"' >> $path/Installers/Windows/Win11/winpeshl.ini
-        fi
-        if [ ! -e $path/Installers/Windows/Win11/install.bat ]
-        then
-            echo -e "${RED_BOLD}Can not create 'install.bat file. Please re-run script and make sure that all catalogs were sucessfully made."            
-            echo -en "${RED_BOLD}Press ENTER to continue...${NC}"
-            read -n 1 -r -s
-            exit
-        else
-            echo "wpeinit" > $path/Installers/Windows/Win11/install.bat
-            echo "net use \\\\$srv\\$smb_name /user:${smb_username} ${smb_passwd}" >> $path/Installers/Windows/Win11/install.bat
-            echo "\\\\$srv\\$smb_name\Installers\Windows\Win11\setup.exe" >> $path/Installers/Windows/Win11/install.bat
-        fi
     fi
 
     # Copying 'boot.wim' file to PXE root folder
