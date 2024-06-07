@@ -182,13 +182,14 @@ function pxe_tree(){
             if [ $choise == "Y" ] || [ $choise == "y" ] || [ $choise == "T" ] || [ $choise == "t" ]
             then
                 bools[$index]="${parts[0]}:TRUE"
-                IFS=':' read -ra parts <<< "${bools[$index]}" # Update parts with the new value from bools
-                mkdir $path/Installers/${parts[0]}
+                IFS=':' read -ra parts <<< "${bools[$index]}"   # Update parts with the new value from bools
+                mkdir $path/Installers/${parts[0]}              # Creating directories for holding files
+                touch $path/ipxe-files/"${parts[0]}.ipxe"       # Creating .ipxe files
                 break
             elif [ $choise == "N" ] || [ $choise == "n" ]
             then
                 bools[$index]="${parts[0]}:FALSE"
-                IFS=':' read -ra parts <<< "${bools[$index]}" # Update parts with the new value from bools
+                IFS=':' read -ra parts <<< "${bools[$index]}"   # Update parts with the new value from bools
                 break
             else
                 echo -e "${RED}Invalid option! Try again.${NC}"
@@ -503,19 +504,20 @@ function ipxe_config(){
     rm -R $path/Other/Wimboot-dir
     # /REPO SPECIFIED
 
-    # BACKGROUND SPECIFIED
+    # .h FILES SPECIFIED
     if [ "${bools[0]}" == "background:TRUE" ]
     then
         # Writing information to '.h' libraries for background image support
         sed -i '3i#define CONSOLE_FRAMEBUFFER' $path/Other/ipxe/src/config/console.h
         sed -i "3i#define IMAGE_PNG" $path/Other/ipxe/src/config/general.h
         sed -i "4i#define CONSOLE_CMD" $path/Other/ipxe/src/config/general.h
+
+        # Writing informations to '.h' library for NFS download support
+        echo "#define DOWNLOAD_PROTO_NFS" >> $path/Other/ipxe/src/config/local/general.h
     fi
-    # /BACKGROUND SPECIFIED
+    # /.h FILES SPECIFIED
 
-    # Writing informations to '.h' library for NFS download support
-    echo "#define DOWNLOAD_PROTO_NFS" >> $path/Other/ipxe/src/config/local/general.h
-
+    # EMBED.IPXE SPECIFIED
     echo -e "${CYAN}Creating 'embed.ipxe' file...${NC}"
     touch $path/Other/ipxe/src/embed.ipxe # 'embed.ipxe' file is a file required for custom build of '.efi' or/and '.kpxe' files. Without this file, you can build only stock build and later you would have to write iPXE commands
     # Writing information to 'embed.ipxe' file
@@ -545,304 +547,213 @@ function ipxe_config(){
         make bin/undionly.kpxe EMBED=embed.ipxe 2>&1 | pv -l > $path/make-kpxe.log      # 'pv' command informs us that script isn't stuck
         mv bin/undionly.kpxe $path
     fi
+    # /EMBED.IPXE SPECIFIED
 
-    # 'main.ipxe' file questions
+    # MAIN.IPXE SPECIFIED
     echo -e "${CYAN}Checking if expected path is present...${NC}"
-    if [ ! -d $path/ipxe-files ]
+    check_dir_ipxe
+    # Creating 'main.ipxe' file where bootloader menu information are 'stored'
+    echo -e "${CYAN}Creating 'main.ipxe' file...${NC}"
+    touch $path/ipxe-files/main.ipxe
+
+    if [ ! -e $path/ipxe-files/main.ipxe ]
     then
-        echo -e "${RED_BOLD}Can not download and configure iPXE because of missing catalogs. Please re-run script and make sure that all packages were successfully downloaded.${NC}"
+        echo -e "${RED_BOLD}Can not write information to 'main.ipxe' file because it's missing. Please re-run script and make sure that all packages were successfully downloaded."        
         echo -en "${RED_BOLD}Press ENTER to continue...${NC}"
         read -n 1 -r -s
         exit
     else
-        # Creating '.ipxe' files prefered by user
-        echo -en "${CYAN}Would you like to create Windows 10 config file? (Y/N):${NC} " 
-        read choise
-        if [ $choise == "Y" ] || [ $choise == "y" ] || [ $choise == "T" ] || [ $choise == "t" ] || [ -z $choise ]
+        echo "#!ipxe" > $path/ipxe-files/main.ipxe
+        echo "" >> $path/ipxe-files/main.ipxe
+
+        # Script is checking if 'bg.png' file is present. It depends on earlier user choise.
+        if [ "${bools[0]}" == "background:TRUE" ]
         then
-            file_win10="TRUE"
-            touch $path/ipxe-files/win10.ipxe
+            echo "console --x 1024 --y 768 --picture http://${srv}/Other/bg.png" >> $path/ipxe-files/main.ipxe 
         fi
 
-        echo -en "${CYAN}Would you like to create Windows 11 config file? (Y/N):${NC} " 
-        read choise
-        if [ $choise == "Y" ] || [ $choise == "y" ] || [ $choise == "T" ] || [ $choise == "t" ] || [ -z $choise ]
-        then
-            file_win11="TRUE"
-            touch $path/ipxe-files/win11.ipxe
-        fi
+        echo ":menu" >> $path/ipxe-files/main.ipxe
+        echo "menu" >> $path/ipxe-files/main.ipxe
+        echo "  item --gap -- -------- iPXE Boot Menu --------" >> $path/ipxe-files/main.ipxe
 
-        echo -en "${CYAN}Would you like to create CloneZilla config file? (Y/N):${NC} " 
-        read choise
-        if [ $choise == "Y" ] || [ $choise == "y" ] || [ $choise == "T" ] || [ $choise == "t" ] || [ -z $choise ]
-        then
-            file_clone="TRUE"
-            touch $path/ipxe-files/clone.ipxe
-        fi
+        # Writing informations to 'menu' tab.
+        for index in "${!bools[@]}" # For loop is going through all elements in bools array
+        do
+            IFS=':' read -ra parts <<< "${bools[$index]}" # This command is splitting values of bools array by ':' character. In bools array there are a name:value types, so i.e if we have a "Windows10:FALSE" then 'Windows10' = name and 'FALSE' = value. So our 'name' = '$parts[0]' and our 'value' = '$parts[1]'.
+            if [ $bools[$index] == "${parts[0]}:TRUE" ]
+            then
+                IFS=':' read -ra parts <<< "${bools[$index]}"   # Update parts with the new value from bools
+                echo "  item ${parts[0]}" | tr '[:upper]' '[:lower:]' | echo "  ${parts[0]}"  >> $path/ipxe-files/main.ipxe
+                break
+            fi
+        done
 
-        echo -en "${CYAN}Would you like to create MemTest config file? (Y/N):${NC} "
-        read choise
-        if [ $choise == "Y" ] || [ $choise == "y" ] || [ $choise == "T" ] || [ $choise == "t" ] || [ -z $choise ]
-        then
-            file_mem="TRUE"
-            touch $path/ipxe-files/mem.ipxe
-        fi
+        echo "  item shell    iPXE Shell" >> $path/ipxe-files/main.ipxe
+        echo "  item sett     Network Settings" >> $path/ipxe-files/main.ipxe
+        echo "" >> $path/ipxe-files/main.ipxe
+        echo 'choose --default return --timeout 5000 target && goto ${target}' >> $path/ipxe-files/main.ipxe
+        echo "" >> $path/ipxe-files/main.ipxe
 
-        echo -en "${CYAN}Would you like to create Hiren's Boot config file? (Y/N):${NC} "
-        read choise
-        if [ $choise == "Y" ] || [ $choise == "y" ] || [ $choise == "T" ] || [ $choise == "t" ] || [ -z $choise ]
-        then
-            file_hbcd="TRUE"
-            touch $path/ipxe-files/hbcd.ipxe
-        fi
+        # Writing informations to 'target' tab.
+        for index in "${!bools[@]}" # For loop is going through all elements in bools array
+        do
+            IFS=':' read -ra parts <<< "${bools[$index]}" # This command is splitting values of bools array by ':' character. In bools array there are a name:value types, so i.e if we have a "Windows10:FALSE" then 'Windows10' = name and 'FALSE' = value. So our 'name' = '$parts[0]' and our 'value' = '$parts[1]'.
+            if [ $bools[$index] == "${parts[0]}:TRUE" ]
+            then
+                IFS=':' read -ra parts <<< "${bools[$index]}"   # Update parts with the new value from bools
+                echo ":${parts[0]}" | tr '[:upper]' '[:lower:]' >> $path/ipxe-files/main.ipxe
+                echo "  chain http://${srv}/ipxe-files/'${parts[0]}.ipxe'" >> $path/ipxe-files/main.ipxe
+                break
+            fi
+        done
 
-        # Creating 'main.ipxe' file where bootloader menu information are 'stored'
-        echo -e "${CYAN}Creating 'main.ipxe' file...${NC}"
-        touch $path/ipxe-files/main.ipxe
+        echo ":shell" >> $path/ipxe-files/main.ipxe
+        echo "  shell" >> $path/ipxe-files/main.ipxe
+        echo ":sett" >> $path/ipxe-files/main.ipxe
+        echo "  config" >> $path/ipxe-files/main.ipxe
+        echo "  goto menu" >> $path/ipxe-files/main.ipxe
+    fi
 
-        if [ ! -e $path/ipxe-files/main.ipxe ]
+    # Writing informations to '$path/ipxe-files/{target}.ipxe' file.
+    # Script is checking if 'win10.ipxe' file is present. It depends on earlier user choise.
+    if [ $file_win10 == "TRUE" ]
+    then
+        echo "#!ipxe" > $path/ipxe-files/win10.ipxe
+        echo "" >> $path/ipxe-files/win10.ipxe
+        echo "kernel http://${srv}/Other/wimboot gui" >> $path/ipxe-files/win10.ipxe
+        echo "" >> $path/ipxe-files/win10.ipxe
+        echo "initrd http://${srv}/Installers/Windows/Win10/winpeshl.ini    winpeshl.ini" >> $path/ipxe-files/win10.ipxe
+        echo "initrd http://${srv}/Installers/Windows/Win10/install.bat     install.bat" >> $path/ipxe-files/win10.ipxe
+        echo "initrd http://${srv}/Installers/Windows/Win10/boot/bcd        bcd" >> $path/ipxe-files/win10.ipxe
+        echo "initrd http://${srv}/Installers/Windows/Win10/boot/boot.sdi   boot.sdi" >> $path/ipxe-files/win10.ipxe
+        echo "initrd http://${srv}/Other/boot.wim                           boot.wim" >> $path/ipxe-files/win10.ipxe
+        echo "" >> $path/ipxe-files/win10.ipxe
+        echo "boot || goto failed" >> $path/ipxe-files/win10.ipxe
+    fi
+
+    # Script is checking if 'win11.ipxe' file is present. It depends on earlier user choise.
+    if [ $file_win11 == "TRUE" ]
+    then
+        echo "#!ipxe" > $path/ipxe-files/win11.ipxe
+        echo "" >> $path/ipxe-files/win11.ipxe
+        echo "kernel http://${srv}/Other/wimboot gui" >> $path/ipxe-files/win11.ipxe
+        echo "" >> $path/ipxe-files/win11.ipxe
+        echo "initrd http://${srv}/Installers/Windows/Win11/winpeshl.ini    winpeshl.ini" >> $path/ipxe-files/win11.ipxe
+        echo "initrd http://${srv}/Installers/Windows/Win11/install.bat     install.bat" >> $path/ipxe-files/win11.ipxe
+        echo "initrd http://${srv}/Installers/Windows/Win11/boot/bcd        bcd" >> $path/ipxe-files/win11.ipxe
+        echo "initrd http://${srv}/Installers/Windows/Win11/boot/boot.sdi   boot.sdi" >> $path/ipxe-files/win11.ipxe
+        echo "initrd http://${srv}/Other/boot.wim                           boot.wim" >> $path/ipxe-files/win11.ipxe
+        echo "" >> $path/ipxe-files/win11.ipxe
+        echo "boot || goto failed" >> $path/ipxe-files/win11.ipxe
+    fi
+
+    # Script is checking if 'clone.ipxe' file is present. It depends on earlier user choise.
+    if [ $file_clone == "TRUE" ]
+    then
+        echo "#!ipxe" > $path/ipxe-files/clone.ipxe
+        echo "" >> $path/ipxe-files/clone.ipxe
+        echo "kernel http://${srv}/Installers/Linux/live/vmlinuz initrd=${path}/Installers/Linux/live/initrd.img boot=live live-config noswap nolocales edd=on nomodeset ocs_daemonon=\"ssh\" ocs_live_run=\"ocs-live-general\" ocs_live_extra_param=\"--batch -g auto -e1 auto -e2 -r -j2 -p reboot restoredisk ask_user sda\" ocs_live_keymap=\"/usr/share/keymaps/i386/qwerty/us.kmap/gz\" ocs_live_batch=\"yes\" ocs_lang=\"en_US.UTF-8\" vga=788 nosplash fetch=${srv}/Installers/Linux/live/filesystem.squashfs ocs_prerun=\"mount -t nfs ${srv}:${path}/nfs /home/partimag"\" >> $path/ipxe-files/clone.ipxe
+        echo "initrd http://${srv}/Installers/Linux/live/initrd.img" >> $path/ipxe-files/clone.ipxe
+        echo "" >> $path/ipxe-files/clone.ipxe
+        echo "boot" >> $path/ipxe-files/clone.ipxe  
+    fi
+
+    # Script is checking if 'mem.ipxe' file is present. It depends on earlier user choise.
+    if [ $file_mem == "TRUE" ]
+    then
+        echo "#!ipxe" > $path/ipxe-files/mem.ipxe
+        echo "" >> $path/ipxe-files/mem.ipxe
+        echo "kernel http://${srv}/Installers/Misc/memdisk || read void" >> $path/ipxe-files/mem.ipxe
+        echo "initrd http://${srv}/Installers/Misc/MemTest/memtest.iso || read void" >> $path/ipxe-files/mem.ipxe
+        echo "imgargs memdisk iso raw || read void" >> $path/ipxe-files/mem.ipxe
+        echo "" >> $path/ipxe-files/mem.ipxe
+        echo "boot || read void" >> $path/ipxe-files/mem.ipxe
+    fi
+
+    # Script is checking if 'hbcd.ipxe' is present. It depends on earlier user choise.
+    if [ $file_hbcd == "TRUE" ]
+    then
+        echo "#!ipxe" > $path/ipxe-files/hbcd.ipxe
+        echo "" >> $path/ipxe-files/hbcd.ipxe
+        echo "kernel http://${srv}/Installers/Misc/memdisk || read void" >> $path/ipxe-files/hbcd.ipxe
+        echo "initrd http://${srv}/Installers/Misc/Hirens/HBCD.iso || read void" >> $path/ipxe-files/hbcd.ipxe
+        echo "imgargs memdisk iso raw || read void" >> $path/ipxe-files/hbcd.ipxe
+        echo "" >> $path/ipxe-files/hbcd.ipxe
+        echo "boot || read void" >> $path/ipxe-files/hbcd.ipxe
+    fi
+
+    echo -e "${CYAN}Creating Windows Auto Startup Script...${NC}"
+    # Script is checking if 'win10.ipxe' file is present. It depends on earlier user choise.
+    if [ $file_win10 == "TRUE" ]
+    then
+        # Creating 'winpeshl.ini' and 'install.bat' files. Files name should not be changed otherwise scripts will not work.
+        touch $path/Installers/Windows/Win10/winpeshl.ini
+        touch $path/Installers/Windows/Win10/install.bat
+
+        if [ ! -e $path/Installers/Windows/Win10/winpeshl.ini ]
         then
-            echo -e "${RED_BOLD}Can not write information to 'main.ipxe' file because it's missing. Please re-run script and make sure that all packages were successfully downloaded."        
+            echo -e "${RED_BOLD}Can not create 'winpeshl.ini file. Please re-run script and make sure that all catalogs were sucessfully made."
             echo -en "${RED_BOLD}Press ENTER to continue...${NC}"
             read -n 1 -r -s
             exit
         else
-            echo "#!ipxe" > $path/ipxe-files/main.ipxe
-            echo "" >> $path/ipxe-files/main.ipxe
-
-            # Script is checking if 'bg.png' file is present. It depends on earlier user choise.
-            if [ $img_bg == "TRUE" ]
-            then
-                echo "console --x 1024 --y 768 --picture http://${srv}/Other/bg.png" >> $path/ipxe-files/main.ipxe 
-            fi
-
-            echo ":menu" >> $path/ipxe-files/main.ipxe
-            echo "menu" >> $path/ipxe-files/main.ipxe
-            echo "  item --gap -- -------- iPXE Boot Menu --------" >> $path/ipxe-files/main.ipxe
-
-            # Writing informations to 'menu' tab.
-            # Script is checking if 'win10.ipxe' file is present. It depends on earlier user choise.
-            if [ $file_win10 == "TRUE" ]
-            then
-                echo "  item win10    Install Windows 10" >> $path/ipxe-files/main.ipxe
-            fi
-
-            # Script is checking if 'win11.ipxe' file is present. It depends on earlier user choise.
-            if [ $file_win11 == "TRUE" ]
-            then
-                echo "  item win11    Install Windows 11" >> $path/ipxe-files/main.ipxe
-            fi
-
-            # Script is checking if 'clone.ipxe' file is present. It depends on earlier user choise.
-            if [ $file_clone == "TRUE" ]
-            then
-                echo "  item clone    CloneZilla" >> $path/ipxe-files/main.ipxe
-            fi
-
-            # Miscellaneous options which you can choose in iPXE bootloader
-            echo "  item --gap -- -------- Misc --------" >> $path/ipxe-files/main.ipxe
-
-            # Script is checking if 'mem.ipxe' file is present. It depends on earlier user choise.
-            if [ $file_mem == "TRUE" ]
-            then
-                echo "  item mem    MemTest" >> $path/ipxe-files/main.ipxe
-            fi
-
-            # Script is checking if 'hbcd.ipxe' file is present. It depends on earlier user choise.
-            if [ $file_hbcd == "TRUE" ]
-            then
-                echo "  item hbcd   Hiren's Boot" >> $path/ipxe-files/main.ipxe
-            fi
-            echo "  item shell    iPXE Shell" >> $path/ipxe-files/main.ipxe
-            echo "  item sett     Network Settings" >> $path/ipxe-files/main.ipxe
-            echo "" >> $path/ipxe-files/main.ipxe
-            echo 'choose --default return --timeout 5000 target && goto ${target}' >> $path/ipxe-files/main.ipxe
-            echo "" >> $path/ipxe-files/main.ipxe
-
-            # Writing informations to 'target' tab.
-            # Script is checking if 'win10.ipxe' file is present. It depends on earlier user choise.
-            if [ $file_win10 == "TRUE" ]
-            then
-                echo ":win10" >> $path/ipxe-files/main.ipxe
-                echo "    chain http://${srv}/ipxe-files/win10.ipxe" >> $path/ipxe-files/main.ipxe
-            fi
-
-            # Script is checking if 'win11.ipxe' file is present. It depends on earlier user choise.
-            if [ $file_win11 == "TRUE" ]
-            then
-                echo ":win11" >> $path/ipxe-files/main.ipxe
-                echo "    chain http://${srv}/ipxe-files/win11.ipxe" >> $path/ipxe-files/main.ipxe
-            fi
-
-            # Script is checking if 'clone.ipxe' file is present. It depends on earlier user choise.
-            if [ $file_clone == "TRUE" ]
-            then
-                echo ":clone" >> $path/ipxe-files/main.ipxe
-                echo "  chain http://${srv}/ipxe-files/clone.ipxe" >> $path/ipxe-files/main.ipxe
-            fi
-
-            # Script is checking if 'mem.ipxe' file is present. It depends on earlier user choise.
-            if [ $file_mem == "TRUE" ]
-            then
-                echo ":mem" >> $path/ipxe-files/main.ipxe
-                echo "  chain http://${srv}/ipxe-files/mem.ipxe" >> $path/ipxe-files/main.ipxe
-            fi
-
-            # Script is checking if 'mem.ipxe' file is present. It depends on earlier user choise.
-            if [ $file_hbcd == "TRUE" ]
-            then
-                echo ":hbcd" >> $path/ipxe-files/main.ipxe
-                echo "  chain http://${srv}/ipxe-files/hbcd.ipxe" >> $path/ipxe-files/main.ipxe
-            fi
-
-            echo ":shell" >> $path/ipxe-files/main.ipxe
-            echo "  shell" >> $path/ipxe-files/main.ipxe
-            echo ":sett" >> $path/ipxe-files/main.ipxe
-            echo "  config" >> $path/ipxe-files/main.ipxe
-            echo "  goto menu" >> $path/ipxe-files/main.ipxe
+            echo "[LaunchApps]" > $path/Installers/Windows/Win10/winpeshl.ini
+            echo '"install.bat"' >> $path/Installers/Windows/Win10/winpeshl.ini
         fi
-
-        # Writing informations to '$path/ipxe-files/{target}.ipxe' file.
-        # Script is checking if 'win10.ipxe' file is present. It depends on earlier user choise.
-        if [ $file_win10 == "TRUE" ]
+        if [ ! -e $path/Installers/Windows/Win10/install.bat ]
         then
-            echo "#!ipxe" > $path/ipxe-files/win10.ipxe
-            echo "" >> $path/ipxe-files/win10.ipxe
-            echo "kernel http://${srv}/Other/wimboot gui" >> $path/ipxe-files/win10.ipxe
-            echo "" >> $path/ipxe-files/win10.ipxe
-            echo "initrd http://${srv}/Installers/Windows/Win10/winpeshl.ini    winpeshl.ini" >> $path/ipxe-files/win10.ipxe
-            echo "initrd http://${srv}/Installers/Windows/Win10/install.bat     install.bat" >> $path/ipxe-files/win10.ipxe
-            echo "initrd http://${srv}/Installers/Windows/Win10/boot/bcd        bcd" >> $path/ipxe-files/win10.ipxe
-            echo "initrd http://${srv}/Installers/Windows/Win10/boot/boot.sdi   boot.sdi" >> $path/ipxe-files/win10.ipxe
-            echo "initrd http://${srv}/Other/boot.wim                           boot.wim" >> $path/ipxe-files/win10.ipxe
-            echo "" >> $path/ipxe-files/win10.ipxe
-            echo "boot || goto failed" >> $path/ipxe-files/win10.ipxe
-        fi
-
-        # Script is checking if 'win11.ipxe' file is present. It depends on earlier user choise.
-        if [ $file_win11 == "TRUE" ]
-        then
-            echo "#!ipxe" > $path/ipxe-files/win11.ipxe
-            echo "" >> $path/ipxe-files/win11.ipxe
-            echo "kernel http://${srv}/Other/wimboot gui" >> $path/ipxe-files/win11.ipxe
-            echo "" >> $path/ipxe-files/win11.ipxe
-            echo "initrd http://${srv}/Installers/Windows/Win11/winpeshl.ini    winpeshl.ini" >> $path/ipxe-files/win11.ipxe
-            echo "initrd http://${srv}/Installers/Windows/Win11/install.bat     install.bat" >> $path/ipxe-files/win11.ipxe
-            echo "initrd http://${srv}/Installers/Windows/Win11/boot/bcd        bcd" >> $path/ipxe-files/win11.ipxe
-            echo "initrd http://${srv}/Installers/Windows/Win11/boot/boot.sdi   boot.sdi" >> $path/ipxe-files/win11.ipxe
-            echo "initrd http://${srv}/Other/boot.wim                           boot.wim" >> $path/ipxe-files/win11.ipxe
-            echo "" >> $path/ipxe-files/win11.ipxe
-            echo "boot || goto failed" >> $path/ipxe-files/win11.ipxe
-        fi
-
-        # Script is checking if 'clone.ipxe' file is present. It depends on earlier user choise.
-        if [ $file_clone == "TRUE" ]
-        then
-            echo "#!ipxe" > $path/ipxe-files/clone.ipxe
-            echo "" >> $path/ipxe-files/clone.ipxe
-            echo "kernel http://${srv}/Installers/Linux/live/vmlinuz initrd=${path}/Installers/Linux/live/initrd.img boot=live live-config noswap nolocales edd=on nomodeset ocs_daemonon=\"ssh\" ocs_live_run=\"ocs-live-general\" ocs_live_extra_param=\"--batch -g auto -e1 auto -e2 -r -j2 -p reboot restoredisk ask_user sda\" ocs_live_keymap=\"/usr/share/keymaps/i386/qwerty/us.kmap/gz\" ocs_live_batch=\"yes\" ocs_lang=\"en_US.UTF-8\" vga=788 nosplash fetch=${srv}/Installers/Linux/live/filesystem.squashfs ocs_prerun=\"mount -t nfs ${srv}:${path}/nfs /home/partimag"\" >> $path/ipxe-files/clone.ipxe
-            echo "initrd http://${srv}/Installers/Linux/live/initrd.img" >> $path/ipxe-files/clone.ipxe
-            echo "" >> $path/ipxe-files/clone.ipxe
-            echo "boot" >> $path/ipxe-files/clone.ipxe  
-        fi
-
-        # Script is checking if 'mem.ipxe' file is present. It depends on earlier user choise.
-        if [ $file_mem == "TRUE" ]
-        then
-            echo "#!ipxe" > $path/ipxe-files/mem.ipxe
-            echo "" >> $path/ipxe-files/mem.ipxe
-            echo "kernel http://${srv}/Installers/Misc/memdisk || read void" >> $path/ipxe-files/mem.ipxe
-            echo "initrd http://${srv}/Installers/Misc/MemTest/memtest.iso || read void" >> $path/ipxe-files/mem.ipxe
-            echo "imgargs memdisk iso raw || read void" >> $path/ipxe-files/mem.ipxe
-            echo "" >> $path/ipxe-files/mem.ipxe
-            echo "boot || read void" >> $path/ipxe-files/mem.ipxe
-        fi
-
-        # Script is checking if 'hbcd.ipxe' is present. It depends on earlier user choise.
-        if [ $file_hbcd == "TRUE" ]
-        then
-            echo "#!ipxe" > $path/ipxe-files/hbcd.ipxe
-            echo "" >> $path/ipxe-files/hbcd.ipxe
-            echo "kernel http://${srv}/Installers/Misc/memdisk || read void" >> $path/ipxe-files/hbcd.ipxe
-            echo "initrd http://${srv}/Installers/Misc/Hirens/HBCD.iso || read void" >> $path/ipxe-files/hbcd.ipxe
-            echo "imgargs memdisk iso raw || read void" >> $path/ipxe-files/hbcd.ipxe
-            echo "" >> $path/ipxe-files/hbcd.ipxe
-            echo "boot || read void" >> $path/ipxe-files/hbcd.ipxe
-        fi
-
-        echo -e "${CYAN}Creating Windows Auto Startup Script...${NC}"
-        # Script is checking if 'win10.ipxe' file is present. It depends on earlier user choise.
-        if [ $file_win10 == "TRUE" ]
-        then
-            # Creating 'winpeshl.ini' and 'install.bat' files. Files name should not be changed otherwise scripts will not work.
-            touch $path/Installers/Windows/Win10/winpeshl.ini
-            touch $path/Installers/Windows/Win10/install.bat
-
-            if [ ! -e $path/Installers/Windows/Win10/winpeshl.ini ]
-            then
-                echo -e "${RED_BOLD}Can not create 'winpeshl.ini file. Please re-run script and make sure that all catalogs were sucessfully made."
-                echo -en "${RED_BOLD}Press ENTER to continue...${NC}"
-                read -n 1 -r -s
-                exit
-            else
-                echo "[LaunchApps]" > $path/Installers/Windows/Win10/winpeshl.ini
-                echo '"install.bat"' >> $path/Installers/Windows/Win10/winpeshl.ini
-            fi
-            if [ ! -e $path/Installers/Windows/Win10/install.bat ]
-            then
-                echo -e "${RED_BOLD}Can not create 'install.bat file. Please re-run script and make sure that all catalogs were sucessfully made."            
-                echo -en "${RED_BOLD}Press ENTER to continue...${NC}"
-                read -n 1 -r -s
-                exit
-            else
-                echo "wpeinit" > $path/Installers/Windows/Win10/install.bat
-                echo "net use \\\\$srv\\$smb_name /user:${smb_username} ${smb_passwd}" >> $path/Installers/Windows/Win10/install.bat
-                echo "\\\\$srv\\$smb_name\Installers\Windows\Win10\setup.exe" >> $path/Installers/Windows/Win10/install.bat
-            fi
-        fi
-
-        if [ $file_win11 == "TRUE" ]
-        then
-            # Creating 'winpeshl.ini' and 'install.bat' files. Files name should not be changed otherwise scripts will not work.
-            touch $path/Installers/Windows/Win11/winpeshl.ini
-            touch $path/Installers/Windows/Win11/install.bat
-
-            if [ ! -e $path/Installers/Windows/Win11/winpeshl.ini ]
-            then
-                echo -e "${RED_BOLD}Can not create 'winpeshl.ini file. Please re-run script and make sure that all catalogs were sucessfully made."
-                echo -en "${RED_BOLD}Services started. Press ENTER to continue...${NC}"
-                read -n 1 -r -s
-                exit
-            else
-                echo "[LaunchApps]" > $path/Installers/Windows/Win11/winpeshl.ini
-                echo '"install.bat"' >> $path/Installers/Windows/Win11/winpeshl.ini
-            fi
-            if [ ! -e $path/Installers/Windows/Win11/install.bat ]
-            then
-                echo -e "${RED_BOLD}Can not create 'install.bat file. Please re-run script and make sure that all catalogs were sucessfully made."            
-                echo -en "${RED_BOLD}Press ENTER to continue...${NC}"
-                read -n 1 -r -s
-                exit
-            else
-                echo "wpeinit" > $path/Installers/Windows/Win11/install.bat
-                echo "net use \\\\$srv\\$smb_name /user:${smb_username} ${smb_passwd}" >> $path/Installers/Windows/Win11/install.bat
-                echo "\\\\$srv\\$smb_name\Installers\Windows\Win11\setup.exe" >> $path/Installers/Windows/Win11/install.bat
-            fi
-        fi
-
-        # Copying 'boot.wim' file to PXE root folder
-        if [ $file_win10 == "FALSE" ] && [ $file_win11 == "FALSE" ]
-        then
-            echo -e "${RED}There isn't any of Windows Install Files! Skipping...${NC}"
+            echo -e "${RED_BOLD}Can not create 'install.bat file. Please re-run script and make sure that all catalogs were sucessfully made."            
+            echo -en "${RED_BOLD}Press ENTER to continue...${NC}"
+            read -n 1 -r -s
+            exit
         else
-            echo -e "${CYAN}Copying 'boot.wim' file to root folder...${NC}"
-            rsync -a --info=progress2 $path_sh/boot.wim $path/Other/boot.wim
+            echo "wpeinit" > $path/Installers/Windows/Win10/install.bat
+            echo "net use \\\\$srv\\$smb_name /user:${smb_username} ${smb_passwd}" >> $path/Installers/Windows/Win10/install.bat
+            echo "\\\\$srv\\$smb_name\Installers\Windows\Win10\setup.exe" >> $path/Installers/Windows/Win10/install.bat
         fi
-
-        echo -en "${GREEN}Everything OK. Press ENTER to continue...${NC}"
-        read -n 1 -r -s
-        echo ""
     fi
+
+    if [ $file_win11 == "TRUE" ]
+    then
+        # Creating 'winpeshl.ini' and 'install.bat' files. Files name should not be changed otherwise scripts will not work.
+        touch $path/Installers/Windows/Win11/winpeshl.ini
+        touch $path/Installers/Windows/Win11/install.bat
+
+        if [ ! -e $path/Installers/Windows/Win11/winpeshl.ini ]
+        then
+            echo -e "${RED_BOLD}Can not create 'winpeshl.ini file. Please re-run script and make sure that all catalogs were sucessfully made."
+            echo -en "${RED_BOLD}Services started. Press ENTER to continue...${NC}"
+            read -n 1 -r -s
+            exit
+        else
+            echo "[LaunchApps]" > $path/Installers/Windows/Win11/winpeshl.ini
+            echo '"install.bat"' >> $path/Installers/Windows/Win11/winpeshl.ini
+        fi
+        if [ ! -e $path/Installers/Windows/Win11/install.bat ]
+        then
+            echo -e "${RED_BOLD}Can not create 'install.bat file. Please re-run script and make sure that all catalogs were sucessfully made."            
+            echo -en "${RED_BOLD}Press ENTER to continue...${NC}"
+            read -n 1 -r -s
+            exit
+        else
+            echo "wpeinit" > $path/Installers/Windows/Win11/install.bat
+            echo "net use \\\\$srv\\$smb_name /user:${smb_username} ${smb_passwd}" >> $path/Installers/Windows/Win11/install.bat
+            echo "\\\\$srv\\$smb_name\Installers\Windows\Win11\setup.exe" >> $path/Installers/Windows/Win11/install.bat
+        fi
+    fi
+
+    # Copying 'boot.wim' file to PXE root folder
+    if [ $file_win10 == "FALSE" ] && [ $file_win11 == "FALSE" ]
+    then
+        echo -e "${RED}There isn't any of Windows Install Files! Skipping...${NC}"
+    else
+        echo -e "${CYAN}Copying 'boot.wim' file to root folder...${NC}"
+        rsync -a --info=progress2 $path_sh/boot.wim $path/Other/boot.wim
+    fi
+
+    echo -en "${GREEN}Everything OK. Press ENTER to continue...${NC}"
+    read -n 1 -r -s
+    echo ""
 fi
 }
 # ------ End of iPXE Configuration Function ------
@@ -903,6 +814,16 @@ function check_ipxe(){
     if [ ! -d $path/Other ] && [ ! -d $path/Other/ipxe ]
     then
         echo -e "${RED_BOLD}Can not download and configure iPXE because of missing catalogs. Please re-run script and make sure that all packages were successfully downloaded."
+        echo -en "${RED_BOLD}Press ENTER to continue...${NC}"
+        read -n 1 -r -s
+        exit
+    fi
+}
+
+function check_dir_ipxe(){
+    if [ ! -d $path/ipxe-files ]
+    then
+        echo -e "${RED_BOLD}Can not download and configure iPXE because of missing catalogs. Please re-run script and make sure that all packages were successfully downloaded.${NC}"
         echo -en "${RED_BOLD}Press ENTER to continue...${NC}"
         read -n 1 -r -s
         exit
