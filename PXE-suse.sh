@@ -583,7 +583,7 @@ function conf_ipxe(){
             if [ "$bools[$index]" == "${parts[0]}:TRUE" ]
             then
                 IFS=':' read -ra parts <<< "${bools[$index]}"   # Update parts with the new value from bools
-                echo "  item ${parts[0]}" | tr '[:upper]' '[:lower:]' | echo "  ${parts[0]}"  >> $path/ipxe-files/main.ipxe
+                echo "  item ${parts[0],,}" "  ${parts[0]}"  >> $path/ipxe-files/main.ipxe
                 break
             fi
         done
