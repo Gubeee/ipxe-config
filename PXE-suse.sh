@@ -580,7 +580,7 @@ function conf_ipxe(){
         for index in "${!bools[@]}" # For loop is going through all elements in bools array
         do
             IFS=':' read -ra parts <<< "${bools[$index]}" # This command is splitting values of bools array by ':' character. In bools array there are a name:value types, so i.e if we have a "Windows10:FALSE" then 'Windows10' = name and 'FALSE' = value. So our 'name' = '$parts[0]' and our 'value' = '$parts[1]'.
-            if [ "$bools[$index]" == "${parts[0]}:TRUE" ]
+            if [ "{$bools[$index]}" == "${parts[0]}:TRUE" ]
             then
                 IFS=':' read -ra parts <<< "${bools[$index]}"   # Update parts with the new value from bools
                 echo "  item ${parts[0],,}" "  ${parts[0]}"  >> $path/ipxe-files/main.ipxe
