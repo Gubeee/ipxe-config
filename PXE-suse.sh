@@ -478,7 +478,7 @@ function conf_nfs(){
     check_nfs # Go to check_nfs function
     echo "${CYAN}Configuring NFS server...${NC}"
     mkdir $path/NFS
-    echo -e "${CYAN}Writing informations to config file..."
+    echo -e "${CYAN}Writing informations to config file...{$NC}"
     # Writing '$path/nfs' to exports file. This will be accessible from all PC's with IP from $net network.
     echo "$path/NFS ${net}/${mask}(rw,sync,no_subtree_check)" > /etc/exports
     exportfs -a
@@ -491,13 +491,13 @@ function conf_nfs(){
 
 # ------ iPXE Configuration Function ------
 # Download and configure iPXE
-function ipxe_config(){
+function conf_ipxe(){
     clear
     check_ipxe # Go to check_ipxe function
     # REPO SPECIFIED
     echo -e "${CYAN}Clonning github repo. Please wait...${NC}"
     git clone https://github.com/ipxe/ipxe.git $path/Other/ipxe # Clonning iPXE files to '$path/Other/ipxe'
-    
+    clear
     echo -e "${CYAN}Downloading wimboot bootloader...${NC}"
     git clone https://github.com/ipxe/wimboot $path/Other/Wimboot-dir
     cp $path/Other/Wimboot-dir/wimboot $path/Other
@@ -580,7 +580,7 @@ function ipxe_config(){
         for index in "${!bools[@]}" # For loop is going through all elements in bools array
         do
             IFS=':' read -ra parts <<< "${bools[$index]}" # This command is splitting values of bools array by ':' character. In bools array there are a name:value types, so i.e if we have a "Windows10:FALSE" then 'Windows10' = name and 'FALSE' = value. So our 'name' = '$parts[0]' and our 'value' = '$parts[1]'.
-            if [ $bools[$index] == "${parts[0]}:TRUE" ]
+            if [ "$bools[$index]" == "${parts[0]}:TRUE" ]
             then
                 IFS=':' read -ra parts <<< "${bools[$index]}"   # Update parts with the new value from bools
                 echo "  item ${parts[0]}" | tr '[:upper]' '[:lower:]' | echo "  ${parts[0]}"  >> $path/ipxe-files/main.ipxe
@@ -598,7 +598,7 @@ function ipxe_config(){
         for index in "${!bools[@]}" # For loop is going through all elements in bools array
         do
             IFS=':' read -ra parts <<< "${bools[$index]}" # This command is splitting values of bools array by ':' character. In bools array there are a name:value types, so i.e if we have a "Windows10:FALSE" then 'Windows10' = name and 'FALSE' = value. So our 'name' = '$parts[0]' and our 'value' = '$parts[1]'.
-            if [ $bools[$index] == "${parts[0]}:TRUE" ]
+            if [ "$bools[$index]" == "${parts[0]}:TRUE" ]
             then
                 IFS=':' read -ra parts <<< "${bools[$index]}"   # Update parts with the new value from bools
                 echo ":${parts[0]}" | tr '[:upper]' '[:lower:]' >> $path/ipxe-files/main.ipxe
@@ -754,7 +754,6 @@ function ipxe_config(){
     echo -en "${GREEN}Everything OK. Press ENTER to continue...${NC}"
     read -n 1 -r -s
     echo ""
-fi
 }
 # ------ End of iPXE Configuration Function ------
 
