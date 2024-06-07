@@ -613,6 +613,33 @@ function conf_ipxe(){
     fi
 
     # Writing informations to '$path/ipxe-files/{target}.ipxe' file.
+
+    for index in "${!bools[@]}" # For loop is going through all elements in bools array
+    do
+        IFS=':' read -ra parts <<< "${bools[$index]}" # This command is splitting values of bools array by ':' character. In bools array there are a name:value types, so i.e if we have a "Windows10:FALSE" then 'Windows10' = name and 'FALSE' = value. So our 'name' = '$parts[0]' and our 'value' = '$parts[1]'.
+        if [ "${bools[$index]}" == "${parts[0]}:TRUE" ]
+        then
+            IFS=':' read -ra parts <<< "${bools[$index]}"   # Update parts with the new value from bools
+            case "${parts[0]}" in Windows*)
+                for win in Windows10 Windows11
+                do
+                    echo "#!ipxe" > $path/ipxe-files/$win.ipxe
+                    echo "" >> $path/ipxe-files/$win.ipxe
+                    echo "kernel http://${srv}/Other/wimboot gui" >> $path/ipxe-files/$win.ipxe
+                    echo "" >> $path/ipxe-files/$win.ipxe
+                    echo "initrd http://${srv}/Installers/$win/winpeshl.ini     winpeshl.ini" >> $path/ipxe-files/$win.ipxe
+                    echo "initrd http://${srv}/Installers/$win/install.bat      install.bat" >> $path/ipxe-files/$win.ipxe
+                    echo "initrd http://${srv}/Installers/$win/boot/bcd         bcd" >> $path/ipxe-files/$win.ipxe
+                    echo "initrd http://${srv}/Installers/$win/boot/boot.sdi    boot.sdi" >> $path/ipxe-files/$win.ipxe
+                    echo "initrd http://${srv}/Other/boot.wim                       boot.wim" >> $path/ipxe-files/$win.ipxe
+                    echo "" >> $path/ipxe-files/$win.ipxe
+                    echo "boot || goto failed" >> $path/ipxe-files/$win.ipxe
+                done
+                ;;
+            esac
+        fi
+    done
+
     # Script is checking if 'win10.ipxe' file is present. It depends on earlier user choise.
     if [ $file_win10 == "TRUE" ]
     then
