@@ -1,5 +1,5 @@
 # WHAT'S NEW?
-(06.2024) Dropped support for Hiren's because I can't check if it works or no. Re-writed code for better clarity. File 'PXE-suse.sh' hasn't been tested yet! If you want to use it edit it by yourself or wait for oficial release!   
+(06.2024) Dropped support for Hiren's because I can't check if it works or no. Re-writed code for better clarity. File '[BETA] PXE-suse.sh' hasn't been tested yet! If you want to use it edit it by yourself or wait for oficial release!   
 (05.2024) Added support for Memtest and Hiren's [BIOS ONLY!]. If you want to add support for other softwares please let me know! (If you want to use this version simply download .tmp file and then rename it to `PXE-openSUSE.sh`) Couldn't check if Hiren's is working due to small amount of RAM. Added `if` which check if username provided in samba config exist in the os.
 
 # OVERVIEW
