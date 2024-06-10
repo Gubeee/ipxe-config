@@ -538,19 +538,19 @@ function conf_ipxe(){
     
     echo -e "${CYAN}Creating 'ipxe.efi' file and 'undionly.kpxe' file. Please wait...${NC}"
     # Checking if script is in expected path, if not then it's changing directory
-#    if [ $(pwd) != $path/Other/ipxe/src ]
-#    then
-#        cd $path/Other/ipxe/src
-#        make bin-x86_64-efi/ipxe.efi EMBED=embed.ipxe 2>&1 | pv -l > $path/make-efi.log # 'pv' command informs us that script isn't stuck
-#        mv bin-x86_64-efi/ipxe.efi $path
-#        make bin/undionly.kpxe EMBED=embed.ipxe 2>&1 | pv -l > $path/make-kpxe.log      # 'pv' command informs us that script isn't stuck
-#        mv bin/undionly.kpxe $path
-#    else
-#        make bin-x86_64-efi/ipxe.efi EMBED=embed.ipxe 2>&1 | pv -l > $path/make-efi.log # 'pv' command informs us that script isn't stuck
-#        mv bin-x86_64-efi/ipxe.efi $path
-#        make bin/undionly.kpxe EMBED=embed.ipxe 2>&1 | pv -l > $path/make-kpxe.log      # 'pv' command informs us that script isn't stuck
-#        mv bin/undionly.kpxe $path
-#    fi
+    if [ $(pwd) != $path/Other/ipxe/src ]
+    then
+        cd $path/Other/ipxe/src
+        make bin-x86_64-efi/ipxe.efi EMBED=embed.ipxe 2>&1 | pv -l > $path/make-efi.log # 'pv' command informs us that script isn't stuck
+        mv bin-x86_64-efi/ipxe.efi $path
+        make bin/undionly.kpxe EMBED=embed.ipxe 2>&1 | pv -l > $path/make-kpxe.log      # 'pv' command informs us that script isn't stuck
+        mv bin/undionly.kpxe $path
+    else
+        make bin-x86_64-efi/ipxe.efi EMBED=embed.ipxe 2>&1 | pv -l > $path/make-efi.log # 'pv' command informs us that script isn't stuck
+        mv bin-x86_64-efi/ipxe.efi $path
+        make bin/undionly.kpxe EMBED=embed.ipxe 2>&1 | pv -l > $path/make-kpxe.log      # 'pv' command informs us that script isn't stuck
+        mv bin/undionly.kpxe $path
+    fi
     # /EMBED.IPXE SPECIFIED
 
     # MAIN.IPXE SPECIFIED
