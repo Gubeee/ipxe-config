@@ -651,7 +651,7 @@ function conf_ipxe(){
     done
 
     # Script is checking if 'clone.ipxe' file is present. It depends on earlier user choise.
-    if [ ${bools[$index]}== "CloneZilla:TRUE" ]
+    if [ "${bools[$index]}" == "CloneZilla:TRUE" ]
     then
         echo "#!ipxe" > $path/ipxe-files/CloneZilla.ipxe
         echo "" >> $path/ipxe-files/CloneZilla.ipxe
@@ -696,7 +696,7 @@ function conf_ipxe(){
         -H 'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36' \
         -H 'sec-ch-ua: "Chromium";v="124", "Google Chrome";v="124", "Not-A.Brand";v="99"' \
         -H 'sec-ch-ua-mobile: ?0' \
-        -H 'sec-ch-ua-platform: "Windows"' -o $path/Installers/Other/memtest.iso
+        -H 'sec-ch-ua-platform: "Windows"' -o $path/Other/memtest.iso
     fi
 
     # Copying 'boot.wim' file to PXE root folder
