@@ -641,9 +641,9 @@ function conf_ipxe(){
                     echo "[LaunchApps]" > $path/Installers/$win/winpeshl.ini
                     echo '"install.bat"' >> $path/Installers/$win/winpeshl.ini
 
-                    echo "wpeinit" > $path/Installers/Windows/Win10/install.bat
+                    echo "wpeinit" > $path/Installers/$win/install.bat
                     echo "net use \\\\$srv\\$smb_name /user:${smb_username} ${smb_passwd}" >> $path/Installers/$win/install.bat
-                    echo "\\\\$srv\\$smb_name\Installers\${win}\setup.exe" >> $path/Installers/$win/install.bat
+                    echo "\\\\$srv\\$smb_name\Installers\\${win}\\setup.exe" >> $path/Installers/$win/install.bat
                 done
                 ;;
             esac
@@ -651,7 +651,7 @@ function conf_ipxe(){
     done
 
     # Script is checking if 'clone.ipxe' file is present. It depends on earlier user choise.
-    if [ $file_clone == "TRUE" ]
+    if [ $bools[$index] == "CloneZilla:TRUE" ]
     then
         echo "#!ipxe" > $path/ipxe-files/clone.ipxe
         echo "" >> $path/ipxe-files/clone.ipxe
@@ -662,7 +662,7 @@ function conf_ipxe(){
     fi
 
     # Script is checking if 'mem.ipxe' file is present. It depends on earlier user choise.
-    if [ $file_mem == "TRUE" ]
+    if [ $bools[$index] == "MemTest:TRUE" ]
     then
         echo "#!ipxe" > $path/ipxe-files/mem.ipxe
         echo "" >> $path/ipxe-files/mem.ipxe
@@ -674,7 +674,7 @@ function conf_ipxe(){
     fi
 
     # Copying 'boot.wim' file to PXE root folder
-    if [ $file_win10 == "FALSE" ] && [ $file_win11 == "FALSE" ]
+    if [ $bools[$index] == "Windows10:FALSE" ] && [ $bools[$index] == "Windows11:FALSE" ]
     then
         echo -e "${RED}There isn't any of Windows Install Files! Skipping...${NC}"
     else
