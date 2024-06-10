@@ -534,19 +534,19 @@ function conf_ipxe(){
     
     echo -e "${CYAN}Creating 'ipxe.efi' file and 'undionly.kpxe' file. Please wait...${NC}"
     # Checking if script is in expected path, if not then it's changing directory
-    if [ $(pwd) != $path/Other/ipxe/src ]
-    then
-        cd $path/Other/ipxe/src
-        make bin-x86_64-efi/ipxe.efi EMBED=embed.ipxe 2>&1 | pv -l > $path/make-efi.log # 'pv' command informs us that script isn't stuck
-        mv bin-x86_64-efi/ipxe.efi $path
-        make bin/undionly.kpxe EMBED=embed.ipxe 2>&1 | pv -l > $path/make-kpxe.log      # 'pv' command informs us that script isn't stuck
-        mv bin/undionly.kpxe $path
-    else
-        make bin-x86_64-efi/ipxe.efi EMBED=embed.ipxe 2>&1 | pv -l > $path/make-efi.log # 'pv' command informs us that script isn't stuck
-        mv bin-x86_64-efi/ipxe.efi $path
-        make bin/undionly.kpxe EMBED=embed.ipxe 2>&1 | pv -l > $path/make-kpxe.log      # 'pv' command informs us that script isn't stuck
-        mv bin/undionly.kpxe $path
-    fi
+#    if [ $(pwd) != $path/Other/ipxe/src ]
+#    then
+#        cd $path/Other/ipxe/src
+#        make bin-x86_64-efi/ipxe.efi EMBED=embed.ipxe 2>&1 | pv -l > $path/make-efi.log # 'pv' command informs us that script isn't stuck
+#        mv bin-x86_64-efi/ipxe.efi $path
+#        make bin/undionly.kpxe EMBED=embed.ipxe 2>&1 | pv -l > $path/make-kpxe.log      # 'pv' command informs us that script isn't stuck
+#        mv bin/undionly.kpxe $path
+#    else
+#        make bin-x86_64-efi/ipxe.efi EMBED=embed.ipxe 2>&1 | pv -l > $path/make-efi.log # 'pv' command informs us that script isn't stuck
+#        mv bin-x86_64-efi/ipxe.efi $path
+#        make bin/undionly.kpxe EMBED=embed.ipxe 2>&1 | pv -l > $path/make-kpxe.log      # 'pv' command informs us that script isn't stuck
+#        mv bin/undionly.kpxe $path
+#    fi
     # /EMBED.IPXE SPECIFIED
 
     # MAIN.IPXE SPECIFIED
@@ -653,24 +653,50 @@ function conf_ipxe(){
     # Script is checking if 'clone.ipxe' file is present. It depends on earlier user choise.
     if [ ${bools[$index]}== "CloneZilla:TRUE" ]
     then
-        echo "#!ipxe" > $path/ipxe-files/clone.ipxe
-        echo "" >> $path/ipxe-files/clone.ipxe
-        echo "kernel http://${srv}/Installers/Linux/live/vmlinuz initrd=${path}/Installers/Linux/live/initrd.img boot=live live-config noswap nolocales edd=on nomodeset ocs_daemonon=\"ssh\" ocs_live_run=\"ocs-live-general\" ocs_live_extra_param=\"--batch -g auto -e1 auto -e2 -r -j2 -p reboot restoredisk ask_user sda\" ocs_live_keymap=\"/usr/share/keymaps/i386/qwerty/us.kmap/gz\" ocs_live_batch=\"yes\" ocs_lang=\"en_US.UTF-8\" vga=788 nosplash fetch=${srv}/Installers/Linux/live/filesystem.squashfs ocs_prerun=\"mount -t nfs ${srv}:${path}/nfs /home/partimag"\" >> $path/ipxe-files/clone.ipxe
-        echo "initrd http://${srv}/Installers/Linux/live/initrd.img" >> $path/ipxe-files/clone.ipxe
-        echo "" >> $path/ipxe-files/clone.ipxe
-        echo "boot" >> $path/ipxe-files/clone.ipxe  
+        echo "#!ipxe" > $path/ipxe-files/CloneZilla.ipxe
+        echo "" >> $path/ipxe-files/CloneZilla.ipxe
+        echo "kernel http://${srv}/Installers/Linux/live/vmlinuz initrd=${path}/Installers/Linux/live/initrd.img boot=live live-config noswap nolocales edd=on nomodeset ocs_daemonon=\"ssh\" ocs_live_run=\"ocs-live-general\" ocs_live_extra_param=\"--batch -g auto -e1 auto -e2 -r -j2 -p reboot restoredisk ask_user sda\" ocs_live_keymap=\"/usr/share/keymaps/i386/qwerty/us.kmap/gz\" ocs_live_batch=\"yes\" ocs_lang=\"en_US.UTF-8\" vga=788 nosplash fetch=${srv}/Installers/Linux/live/filesystem.squashfs ocs_prerun=\"mount -t nfs ${srv}:${path}/nfs /home/partimag"\" >> $path/ipxe-files/CloneZilla.ipxe
+        echo "initrd http://${srv}/Installers/Linux/live/initrd.img" >> $path/ipxe-files/CloneZilla.ipxe
+        echo "" >> $path/ipxe-files/CloneZilla.ipxe
+        echo "boot" >> $path/ipxe-files/CloneZilla.ipxe
+
+        echo -e "${CYAN}Downloading CloneZilla .iso file...${NC}"
+        curl 'https://deac-riga.dl.sourceforge.net/project/clonezilla/clonezilla_live_stable/3.1.2-22/clonezilla-live-3.1.2-22-amd64.iso?viasf=1' -H 'User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:109.0) Gecko/20100101 Firefox/115.0' -H 'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8' -H 'Accept-Language: en-US,en;q=0.5' -H 'Accept-Encoding: gzip, deflate, br' -H 'Referer: https://sourceforge.net/' -H 'Connection: keep-alive' -H 'Cookie: __cmpconsentx11319=CP9nwjAP9nwjAAfUnBENAxEsAP_AAEPAACiQGgwEAAGgAVABAAC0AGgATAAoABfADCAHgAQQAowCEALzAZeA0EDQYCAADQAKgAgABaADQAJgAUAAvgBhADwAIIAUYBCAF5gMvAaCAAA; __cmpcvcx11319=__c37910_s135_c48392_s30_U__; __cmpcpcx11319=____; __gads=ID=51ca8e34ae5905c0:T=1714043840:RT=1714043840:S=ALNI_MZYJCQfXewTvz1OnvD_MDkzB_h-SA; __gpi=UID=00000dfe1d0b78b9:T=1714043840:RT=1714043840:S=ALNI_MZ-vKxNSTOZQlHMunc0b57EHUI9gQ; __eoi=ID=ac4bf2da1cea6aae:T=1714043840:RT=1714043840:S=AA-AfjYlMlSvxwex91lUf6RofYJP' -H 'Upgrade-Insecure-Requests: 1' -H 'Sec-Fetch-Dest: document' -H 'Sec-Fetch-Mode: navigate' -H 'Sec-Fetch-Site: same-site' -o $path/clone.iso
+        echo "Mounting .iso file..."
+        mount $path/clone.iso /mnt
+        echo -e "${CYAN}Copying files...${NC}"
+        rsync -a --info=progress2 /mnt/* $path/Installers/CloneZilla
+        umount /mnt
+        rm -R $path/clone.iso
     fi
 
     # Script is checking if 'mem.ipxe' file is present. It depends on earlier user choise.
-    if [ ${bools[$index]} == "MemTest:TRUE" ]
+    if [ "${bools[$index]}" == "MemTest:TRUE" ]
     then
-        echo "#!ipxe" > $path/ipxe-files/mem.ipxe
-        echo "" >> $path/ipxe-files/mem.ipxe
-        echo "kernel http://${srv}/Installers/Misc/memdisk || read void" >> $path/ipxe-files/mem.ipxe
-        echo "initrd http://${srv}/Installers/Misc/MemTest/memtest.iso || read void" >> $path/ipxe-files/mem.ipxe
-        echo "imgargs memdisk iso raw || read void" >> $path/ipxe-files/mem.ipxe
-        echo "" >> $path/ipxe-files/mem.ipxe
-        echo "boot || read void" >> $path/ipxe-files/mem.ipxe
+        echo "#!ipxe" > $path/ipxe-files/MemTest.ipxe
+        echo "" >> $path/ipxe-files/MemTest.ipxe
+        echo "kernel http://${srv}/Other/memdisk || read void" >> $path/ipxe-files/MemTest.ipxe
+        echo "initrd http://${srv}/Other/memtest.iso || read void" >> $path/ipxe-files/MemTest.ipxe
+        echo "imgargs memdisk iso raw || read void" >> $path/ipxe-files/MemTest.ipxe
+        echo "" >> $path/ipxe-files/MemTest.ipxe
+        echo "boot || read void" >> $path/ipxe-files/MemTest.ipxe
+
+        cp /usr/share/syslinux/memdisk $path/Other
+
+        echo -e "${CYAN}Downloading Memtest .iso file...${NC}"
+        curl 'https://memtest.org/download/v7.00/mt86plus_7.00_64.iso.zip' \
+        -H 'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7' \
+        -H 'Accept-Language: pl-PL,pl;q=0.9,en-US;q=0.8,en;q=0.7' \
+        -H 'Connection: keep-alive' \
+        -H 'Sec-Fetch-Dest: document' \
+        -H 'Sec-Fetch-Mode: navigate' \
+        -H 'Sec-Fetch-Site: none' \
+        -H 'Sec-Fetch-User: ?1' \
+        -H 'Upgrade-Insecure-Requests: 1' \
+        -H 'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36' \
+        -H 'sec-ch-ua: "Chromium";v="124", "Google Chrome";v="124", "Not-A.Brand";v="99"' \
+        -H 'sec-ch-ua-mobile: ?0' \
+        -H 'sec-ch-ua-platform: "Windows"' -o $path/Installers/Other/memtest.iso
     fi
 
     # Copying 'boot.wim' file to PXE root folder
