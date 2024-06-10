@@ -476,7 +476,7 @@ function conf_apache(){
 function conf_nfs(){
     clear
     check_nfs # Go to check_nfs function
-    echo "${CYAN}Configuring NFS server...${NC}"
+    echo -e "${CYAN}Configuring NFS server...${NC}"
     mkdir $path/NFS
     echo -e "${CYAN}Writing informations to config file...{$NC}"
     # Writing '$path/nfs' to exports file. This will be accessible from all PC's with IP from $net network.
@@ -644,6 +644,10 @@ function conf_ipxe(){
                     echo "wpeinit" > $path/Installers/$win/install.bat
                     echo "net use \\\\$srv\\$smb_name /user:${smb_username} ${smb_passwd}" >> $path/Installers/$win/install.bat
                     echo "\\\\$srv\\$smb_name\Installers\\${win}\\setup.exe" >> $path/Installers/$win/install.bat
+
+                    clear
+                    echo -e "${GREEN}Copying installation files to ${win} folder..."
+                    rsync -a --info=progress2 $path_sh/Win10/* $path/Installers/$win
                 done
                 ;;
             esac
@@ -708,14 +712,6 @@ function conf_ipxe(){
     else
         echo -e "${CYAN}Copying neccessary files to root folder...${NC}"
         rsync -a --info=progress2 $path_sh/boot.wim $path/Other/boot.wim
-        if [ "${bools[$index]}" == "Windows10:TRUE" ]
-        then
-            rsync -a --info=progress2 $path_sh/Win10 $path/Installers/Windows10
-        fi
-        if [ "${bools[$index]}" == "Windows11:TRUE" ]
-        then
-            rsync -a --info=progress2 $path_sh/Win11 $path/Installers/Windows11
-        fi
     fi
 
     echo -en "${GREEN}Everything OK. Press ENTER to continue...${NC}"
