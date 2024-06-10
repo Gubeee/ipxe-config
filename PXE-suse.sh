@@ -605,7 +605,7 @@ function conf_ipxe(){
             then
                 IFS=':' read -ra parts <<< "${bools[$index]}"   # Update parts with the new value from bools
                 echo ":${parts[0],,}" >> $path/ipxe-files/main.ipxe
-                echo "  chain http://${srv}/ipxe-files/${parts[0]}" >> $path/ipxe-files/main.ipxe
+                echo "  chain http://${srv}/ipxe-files/${parts[0]}.ipxe" >> $path/ipxe-files/main.ipxe
             fi
         done
 
