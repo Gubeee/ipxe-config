@@ -702,17 +702,17 @@ function conf_ipxe(){
     fi
 
     # Copying 'boot.wim' file to PXE root folder
-    if [ $bools[$index] == "Windows10:FALSE" ] && [ $bools[$index] == "Windows11:FALSE" ]
+    if [ "${bools[$index]}" == "Windows10:FALSE" ] && [ "${bools[$index]}" == "Windows11:FALSE" ]
     then
         echo -e "${RED}There isn't any of Windows Install Files! Skipping...${NC}"
     else
         echo -e "${CYAN}Copying neccessary files to root folder...${NC}"
         rsync -a --info=progress2 $path_sh/boot.wim $path/Other/boot.wim
-        if [ $bools[$index] == "Windows10" ]
+        if [ "${bools[$index]}" == "Windows10:TRUE" ]
         then
             rsync -a --info=progress2 $path_sh/Win10 $path/Installers/Windows10
         fi
-        if [ $bools[$index] == "Windows11" ]
+        if [ "${bools[$index]}" == "Windows11:TRUE" ]
         then
             rsync -a --info=progress2 $path_sh/Win11 $path/Installers/Windows11
         fi
