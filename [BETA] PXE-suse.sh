@@ -653,6 +653,7 @@ function conf_ipxe(){
     # Script is checking if 'clone.ipxe' file is present. It depends on earlier user choise.
     if [ "${bools[$index]}" == "CloneZilla:TRUE" ]
     then
+        clear
         echo "#!ipxe" > $path/ipxe-files/CloneZilla.ipxe
         echo "" >> $path/ipxe-files/CloneZilla.ipxe
         echo "kernel http://${srv}/Installers/Linux/live/vmlinuz initrd=${path}/Installers/Linux/live/initrd.img boot=live live-config noswap nolocales edd=on nomodeset ocs_daemonon=\"ssh\" ocs_live_run=\"ocs-live-general\" ocs_live_extra_param=\"--batch -g auto -e1 auto -e2 -r -j2 -p reboot restoredisk ask_user sda\" ocs_live_keymap=\"/usr/share/keymaps/i386/qwerty/us.kmap/gz\" ocs_live_batch=\"yes\" ocs_lang=\"en_US.UTF-8\" vga=788 nosplash fetch=${srv}/Installers/Linux/live/filesystem.squashfs ocs_prerun=\"mount -t nfs ${srv}:${path}/nfs /home/partimag"\" >> $path/ipxe-files/CloneZilla.ipxe
@@ -673,6 +674,7 @@ function conf_ipxe(){
     # Script is checking if 'mem.ipxe' file is present. It depends on earlier user choise.
     if [ "${bools[$index]}" == "MemTest:TRUE" ]
     then
+        clear
         echo "#!ipxe" > $path/ipxe-files/MemTest.ipxe
         echo "" >> $path/ipxe-files/MemTest.ipxe
         echo "kernel http://${srv}/Other/memdisk || read void" >> $path/ipxe-files/MemTest.ipxe
