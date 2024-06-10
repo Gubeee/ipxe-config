@@ -651,7 +651,7 @@ function conf_ipxe(){
     done
 
     # Script is checking if 'clone.ipxe' file is present. It depends on earlier user choise.
-    if [ "${bools[$index]}" == "CloneZilla:TRUE" ]
+    if [ -e $path/ipxe-files/CloneZilla.ipxe ]
     then
         clear
         echo "#!ipxe" > $path/ipxe-files/CloneZilla.ipxe
