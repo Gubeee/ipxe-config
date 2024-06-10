@@ -706,8 +706,16 @@ function conf_ipxe(){
     then
         echo -e "${RED}There isn't any of Windows Install Files! Skipping...${NC}"
     else
-        echo -e "${CYAN}Copying 'boot.wim' file to root folder...${NC}"
+        echo -e "${CYAN}Copying neccessary files to root folder...${NC}"
         rsync -a --info=progress2 $path_sh/boot.wim $path/Other/boot.wim
+        if [ $bools[$index] == "Windows10" ]
+        then
+            rsync -a --info=progress2 $path_sh/Win10 $path/Installers/Windows10
+        fi
+        if [ $bools[$index] == "Windows11" ]
+        then
+            rsync -a --info=progress2 $path_sh/Win11 $path/Installers/Windows11
+        fi
     fi
 
     echo -en "${GREEN}Everything OK. Press ENTER to continue...${NC}"
