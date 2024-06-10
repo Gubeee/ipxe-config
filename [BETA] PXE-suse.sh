@@ -133,8 +133,6 @@ function full_install(){
     # ------------------------------------------------
     conf_ipxe       # Go to ipxe_config function
     # ------------------------------------------------
-    os_down         # Go to os_down function
-    # ------------------------------------------------
     service_start   # Go to service_start function
     misc_options    # Go to misc_options function
 }
@@ -144,6 +142,7 @@ function full_install(){
 # Creating PXE dir tree
 function pxe_tree(){
     clear
+    echo -e "${BLUE}---------- CREATING TREE ----------${NC}"
     echo -en "${CYAN}Default path for storing all of PXE files is /pxe-boot. Do you want to change it? (Y/N):${NC} "
     read choise
 
@@ -207,6 +206,7 @@ function pxe_tree(){
 function conf_dhcp(){
     clear
     check_dhcp # Go to check_dhcp function
+    echo -e "${BLUE}---------- DHCP CONFIGURATION ----------${NC}"
     next=""
     gate=""
     mask=""
@@ -341,6 +341,7 @@ function conf_dhcp(){
 function conf_tftp(){
     clear
     check_tftp # Go to check_tftp function
+    echo -e "${BLUE}---------- TFTP CONFIGURATION ----------${NC}"
     echo "TFTP_USER='tftp'" > /etc/sysconfig/tftp
 	echo "TFTP_OPTIONS='--secure'" >> /etc/sysconfig/tftp
 	echo "TFTP_DIRECTORY='${path_tftp}'" >> /etc/sysconfig/tftp
@@ -355,6 +356,7 @@ function conf_tftp(){
 function conf_smb(){
     clear
     check_smb # Go to check_smb function
+    echo -e "${BLUE}---------- SAMBA CONFIGURATION ----------${NC}"
     smb_proc=0 # Auxiliary variable for 'while' loop
     echo -en "${CYAN}Default share name is 'pxe-files'. Would you like to change it? (Y/N):${NC} "
     read choise
@@ -435,6 +437,7 @@ function conf_smb(){
 function conf_apache(){
     clear
     check_apache # Go to conf_apache function
+    echo -e "${BLUE}---------- APACHE CONFIGURATION ----------${NC}"
     touch /etc/apache2/vhosts.d/pxe.conf
     if [ ! -e /etc/apache2/vhosts.d/pxe.conf ]
     then
@@ -476,9 +479,9 @@ function conf_apache(){
 function conf_nfs(){
     clear
     check_nfs # Go to check_nfs function
-    echo -e "${CYAN}Configuring NFS server...${NC}"
+    echo -e "${BLUE}---------- NFS CONFIGURATION ----------${NC}"
     mkdir $path/NFS
-    echo -e "${CYAN}Writing informations to config file...{$NC}"
+    echo -e "${CYAN}Writing informations to config file...${NC}"
     # Writing '$path/nfs' to exports file. This will be accessible from all PC's with IP from $net network.
     echo "$path/NFS ${net}/${mask}(rw,sync,no_subtree_check)" > /etc/exports
     exportfs -a
@@ -494,11 +497,12 @@ function conf_nfs(){
 function conf_ipxe(){
     clear
     check_ipxe # Go to check_ipxe function
+    echo -e "${BLUE}---------- IPXE CONFIGURATION ----------${NC}"
     # REPO SPECIFIED
-    echo -e "${CYAN}Clonning github repo. Please wait...${NC}"
+    echo -e "${CYAN}Cloning iPXE repo. Please wait...${NC}"
     git clone https://github.com/ipxe/ipxe.git $path/Other/ipxe # Clonning iPXE files to '$path/Other/ipxe'
     clear
-    echo -e "${CYAN}Downloading wimboot bootloader...${NC}"
+    echo -e "${CYAN}Cloning Wimboot repo. Please wait...${NC}"
     git clone https://github.com/ipxe/wimboot $path/Other/Wimboot-dir
     cp $path/Other/Wimboot-dir/wimboot $path/Other
     rm -R $path/Other/Wimboot-dir
@@ -657,7 +661,6 @@ function conf_ipxe(){
     # Script is checking if 'clone.ipxe' file is present. It depends on earlier user choise.
     if [ -e $path/ipxe-files/CloneZilla.ipxe ]
     then
-        clear
         echo "#!ipxe" > $path/ipxe-files/CloneZilla.ipxe
         echo "" >> $path/ipxe-files/CloneZilla.ipxe
         echo "kernel http://${srv}/Installers/CloneZilla/live/vmlinuz initrd=${path}/Installers/CloneZilla/live/initrd.img boot=live live-config noswap nolocales edd=on nomodeset ocs_daemonon=\"ssh\" ocs_live_run=\"ocs-live-general\" ocs_live_extra_param=\"--batch -g auto -e1 auto -e2 -r -j2 -p reboot restoredisk ask_user sda\" ocs_live_keymap=\"/usr/share/keymaps/i386/qwerty/us.kmap/gz\" ocs_live_batch=\"yes\" ocs_lang=\"en_US.UTF-8\" vga=788 nosplash fetch=${srv}/Installers/Linux/live/filesystem.squashfs ocs_prerun=\"mount -t nfs ${srv}:${path}/nfs /home/partimag"\" >> $path/ipxe-files/CloneZilla.ipxe
@@ -678,11 +681,10 @@ function conf_ipxe(){
     # Script is checking if 'mem.ipxe' file is present. It depends on earlier user choise.
     if [ "${bools[$index]}" == "MemTest:TRUE" ]
     then
-        clear
         echo "#!ipxe" > $path/ipxe-files/MemTest.ipxe
         echo "" >> $path/ipxe-files/MemTest.ipxe
         echo "kernel http://${srv}/Other/memdisk || read void" >> $path/ipxe-files/MemTest.ipxe
-        echo "initrd http://${srv}/Other/memtest.iso || read void" >> $path/ipxe-files/MemTest.ipxe
+        echo "initrd http://${srv}/Installers/MemTest/memtest.iso || read void" >> $path/ipxe-files/MemTest.ipxe
         echo "imgargs memdisk iso raw || read void" >> $path/ipxe-files/MemTest.ipxe
         echo "" >> $path/ipxe-files/MemTest.ipxe
         echo "boot || read void" >> $path/ipxe-files/MemTest.ipxe
@@ -702,7 +704,7 @@ function conf_ipxe(){
         -H 'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36' \
         -H 'sec-ch-ua: "Chromium";v="124", "Google Chrome";v="124", "Not-A.Brand";v="99"' \
         -H 'sec-ch-ua-mobile: ?0' \
-        -H 'sec-ch-ua-platform: "Windows"' -o $path/Other/memtest.iso
+        -H 'sec-ch-ua-platform: "Windows"' -o $path/Installers/MemTest/memtest.iso
     fi
 
     # Copying 'boot.wim' file to PXE root folder
@@ -808,4 +810,136 @@ function pack_down(){
     read -n 1 -r -s
 }
 
-check
+# ------ Service Start Function ------
+# Starting required services and adding them to autostart
+function service_start(){
+    clear
+    if [ $package_down_status == 1 ]
+    then
+        echo -e "${CYAN}Checking if services are working...${NC}"
+
+        # Checking if DHCP service is active
+        if ! systemctl --quiet is-active dhcpd.service
+        then
+            systemctl start dhcpd.service
+            systemctl restart dhcpd.service
+        fi
+
+        # Checking if Apache2 service is active
+        if ! systemctl --quiet is-active apache2
+        then
+            systemctl start apache2
+        fi
+
+        # Cheking if TFPT service is active
+        if ! systemctl --quiet is-active tftp
+        then
+            systemctl start tftp
+        fi
+
+        # Checking if Samba service is active
+        if ! systemctl --quiet is-active smb
+        then
+            systemctl start smb
+        fi
+
+        # Checkign if NFS services are active
+        if ! systemctl --quiet is-active nfs
+        then
+            systemctl start nfs
+        fi
+        if ! systemctl --quiet is-active nfs-server
+        then
+            systemctl start nfs-server
+        fi
+
+        # Adding services to 'autostart'.
+        systemctl enable dhcpd
+        systemctl enable apache2
+        systemctl enable tftp
+        systemctl enable smb
+        systemctl enable nfs
+        systemctl enable nfs-server
+
+        echo "${CYAN}Adding firewall rules for services...${NC}"
+        firewall-cmd --zone=public --permanent --add-service=apache2
+        firewall-cmd --zone=public --permanent --add-service=http
+        firewall-cmd --zone=public --permanent --add-service=dhcp
+        firewall-cmd --zone=public --permanent --add-service=nfs
+        firewall-cmd --zone=public --permanent --add-service=apache2
+        firewall-cmd --zone=public --permanent --add-service=samba
+        firewall-cmd --zone=public --permanent --add-service=tftp
+        firewall-cmd --reload
+
+        echo -e "${CYAN}Making $path/nfs writable for reading/saving disk images made with CloneZilla...${NC}"
+        chmod -R 777 $path/nfs > dev/null
+        chown -R nobody:nogroup $path/nfs > /dev/null
+    else
+        echo -e "${RED_BOLD}There is nothing to start, because packages haven't been downloaded yet. Try 'Downloading Packages' option in menu and then try again or select 'Full Install' option.${NC}"
+        echo -en "${GREEN}Services started. Press ENTER to continue...${NC}"
+        read -n 1 -r -s
+        config_start
+    fi
+}
+# ------ End of Service Start Function ------
+
+# Misc options
+# ------ Misc Options Function ------
+function misc_options(){
+    clear
+    echo -e "${BLUE}------ Misc Options ------${NC}"
+    echo -e "1. Open Readme file ${CYAN_UNDER}*RECOMMENDED*${NC}"
+    echo "E. Exit"
+
+    read -p "Select option: " choise
+
+    case $choise in
+        1) readme_file ;;
+        E|e) exit_fn ;;
+        *) invalid_param_misc_options ;;
+    esac
+}
+
+# Exiting script
+function exit_fn(){
+    echo ""
+    echo "Quitting script..."
+    exit
+}
+
+# Opening README file function
+function readme_file(){
+    if [ -e $path_sh/README.md ]
+    then
+        export VISUAL="/usr/bin/nano"
+        $VISUAL $path_sh/README.md
+    else
+        echo "${RED} File 'README.md' doesn't exists!${NC}"
+    fi
+}
+
+# If user choose an invalid parameter in case statement then it's reseting 'config_start' function
+function invalid_param_config_start(){
+    echo -e "${RED_BOLD}Undefined option! Let's start over...${NC}"
+    sleep 3
+    config_start
+}
+
+# If user choose an invalid parameter in case statement then it's reseting 'misc_options' function
+function invalid_param_misc_options(){
+    echo -e "${RED_BOLD}Undefined option! Let's start over...${NC}"
+    sleep 3
+    misc_options
+}
+# ------ End of Misc Options Function ------
+
+# ------ Program ------
+if [ $EUID -ne 0 ]
+then
+    echo "Script should be run as su. Try login to su account or run script with sudo."
+    sleep 3
+    exit
+else
+    check
+fi
+# ------ End of Program ------
