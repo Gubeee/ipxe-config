@@ -649,8 +649,7 @@ function conf_ipxe(){
                     echo "net use \\\\$srv\\$smb_name /user:${smb_username} ${smb_passwd}" >> $path/Installers/$win/install.bat
                     echo "\\\\$srv\\$smb_name\Installers\\${win}\\setup.exe" >> $path/Installers/$win/install.bat
 
-                    clear
-                    echo -e "${GREEN}Copying installation files to ${win} folder..."
+                    echo -e "${CYAN}Copying installation files to ${win} folder..."
                     rsync -a --info=progress2 $path_sh/Win10/* $path/Installers/$win
                 done
                 ;;
