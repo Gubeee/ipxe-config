@@ -651,7 +651,7 @@ function conf_ipxe(){
     done
 
     # Script is checking if 'clone.ipxe' file is present. It depends on earlier user choise.
-    if [ $bools[$index] == "CloneZilla:TRUE" ]
+    if [ ${bools[$index]}== "CloneZilla:TRUE" ]
     then
         echo "#!ipxe" > $path/ipxe-files/clone.ipxe
         echo "" >> $path/ipxe-files/clone.ipxe
@@ -662,7 +662,7 @@ function conf_ipxe(){
     fi
 
     # Script is checking if 'mem.ipxe' file is present. It depends on earlier user choise.
-    if [ $bools[$index] == "MemTest:TRUE" ]
+    if [ ${bools[$index]} == "MemTest:TRUE" ]
     then
         echo "#!ipxe" > $path/ipxe-files/mem.ipxe
         echo "" >> $path/ipxe-files/mem.ipxe
