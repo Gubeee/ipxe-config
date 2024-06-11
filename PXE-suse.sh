@@ -43,16 +43,18 @@ NC='\033[0m'
 
 # ------ Functions ------ 
 function check(){
+    clear
+
     path_sh="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)" # Getting path to script, where SHOULD BE stored all of the data (Win10/11 Installation Files, bg.img, etc.). For more information chceck README.md and look on file tree img.
 
-    if [ ! -e '${path_sh}/boot.wim' ] || [ ! -d '${path_sh}/Win10' ] || [ ! -d '${path_sh}/Win11' ]
+    if [ ! -e '${path_sh}/boot.wim' ] || [ ! -d '${path_sh}/Win10' ] || [ ! -d '${path_sh}/Win11' ] # If in script path those files aren't present, then script is telling user that some files are missing
     then
         echo -e "${RED}Some files are missing! Would You like to continue? (Y/N): ${NC}"
         read choise
 
         if [ $choise == 'Y' ] || [ $choise == 'y' ] || [ $choise == 'T' ] || [ $choise == 't' ] || [ -z $choise ]
         then
-            intro
+            intro # Go to *intro* function
         else
             exit
         fi
@@ -73,10 +75,10 @@ function intro(){
 
     if [ $choise == "1" ]
     then
-        config_start            # Go to config_start function
+        config_start            # Go to *config_start* function
     elif [ $choise == "2" ]
     then
-        readme_file             # Go to readme_file function
+        readme_file             # Go to *readme_file* function
     elif [ $choise == "E" ] || [ $choise == "e" ]
     then
         echo ""
@@ -109,7 +111,7 @@ function config_start(){
         D|d) pack_down ;;                       # Downloading packages
         S|s) service_start ;;                   # Starting Services 
         E|e) exit_fn ;;                         # Exiting Script
-        *) invalid_param_config_start ;;        #Invalid Parameter Function
+        *) invalid_param_config_start ;;        # Invalid Parameter Function
     esac
 }
 # ------ End of Configuration Start Function ------
@@ -118,23 +120,26 @@ function config_start(){
 # Setting up PXE Server from scratch
 function full_install(){
     clear
+
     # ------------------------------------------------
-    pack_down       # Go to pack_down function
-    pxe_tree        # Go to pxe_tree function
+    pack_down       # Go to *pack_down* function
+    pxe_tree        # Go to *pxe_tree* function
     # ------------------------------------------------
-    conf_dhcp       # Go to dhcp_config function
-    conf_tftp       # Go to tftp_config function
-    conf_smb        # Go to samba_config function
-    conf_apache     # Go to apache_config function
-    if [ -d $path/Installers/CloneZilla ]
+    conf_dhcp       # Go to *dhcp_config* function
+    conf_tftp       # Go to *tftp_config* function
+    conf_smb        # Go to *samba_config* function
+    conf_apache     # Go to *apache_config* function
+
+    if [ -d $path/Installers/CloneZilla ] 
     then
-        conf_nfs    # Go to nfs_config function
+        conf_nfs    # Go to *nfs_config* function
     fi
+
     # ------------------------------------------------
-    conf_ipxe       # Go to ipxe_config function
+    conf_ipxe       # Go to *ipxe_config* function
     # ------------------------------------------------
-    service_start   # Go to service_start function
-    misc_options    # Go to misc_options function
+    service_start   # Go to *service_start* function
+    misc_options    # Go to *misc_options* function
 }
 # ------ End of Full Installation Function ------
 
@@ -142,6 +147,7 @@ function full_install(){
 # Creating PXE dir tree
 function pxe_tree(){
     clear
+
     echo -e "${BLUE}---------- CREATING TREE ----------${NC}"
     echo -en "${CYAN}Default path for storing all of PXE files is /pxe-boot. Do you want to change it? (Y/N):${NC} "
     read choise
@@ -160,11 +166,12 @@ function pxe_tree(){
     fi
 
     echo -e "${GREEN}Setting ${path} as a default path for all servers. Please wait...${NC}"
-    path_tftp=$path         # Setting $path for TFTP server.
-    path_apache=$path       # Setting $path for Apache2 server.
-    path_smb=$path          # Setting $path for Samba server. 
-    path_nfs=$path          # Setting $path for NFS server.
+    path_tftp=$path         # Setting $path as a TFTP server path.
+    path_apache=$path       # Setting $path as a Apache2 server path.
+    path_smb=$path          # Setting $path as a Samba server path. 
+    path_nfs=$path          # Setting $path as a NFS server path.
 
+    # Creating default folders in $path
     mkdir $path
     mkdir $path/Installers
     mkdir $path/ipxe-files
@@ -205,13 +212,16 @@ function pxe_tree(){
 # DHCP Server configuration
 function conf_dhcp(){
     clear
-    check_dhcp # Go to check_dhcp function
+
+    check_dhcp # Go to *check_dhcp* function
     echo -e "${BLUE}---------- DHCP CONFIGURATION ----------${NC}"
-    next=""
-    gate=""
-    mask=""
-    srv=""
-    dns=""
+
+    next=""         # Global variable 'next' is holding a 'next-server' address which equals 'srv'
+    gate=""         # Global variable 'gate' is holding a 'gateway' address
+    mask=""         # Global variable 'mask' is holding a 'subnet mask' address
+    srv=""          # Global variable 'srv' is holding a 'server' address
+    dns=""          # Global variable 'dns' is holding a 'dns server' address
+
     # If content of 'net' is empty then loop is working until 'net' have an content inside
     while [ -z "$net" ] 
     do
@@ -225,6 +235,8 @@ function conf_dhcp(){
         fi
     done
 
+    # Let's take a look to this command - for example our Network IP Address is 192.168.0.0. Command below is splitting our '$net' variable by '.'
+    # and it's holding only three octets of this address. So if or Network IP is 192.168.0.0 then our '$net_cut' is 192.168.0
     net_cut=$(echo "$net" | cut -d'.' -f1-3)
 
     # If content of 'gate' is empty then loop is working until 'gate' have an content inside
@@ -256,7 +268,9 @@ function conf_dhcp(){
     # If content of 'range' is empty then loop is working until 'range' have an content inside
     while [ -z "$range" ]
     do
-        read -e -p "Enter range of DHCP addresses (ie. 192.168.50.3 192.168.50.254): " range
+        read -e -p "Enter a first address of a DHCP range: " -i "$net_cut." range_one
+        read -e -p "Enter a last address of a DHCP range: " -i "$net_cut." range_last
+        range="${range_one} ${range_last}"
         if [[ $range =~ ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])[[:space:]]+(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$ ]]
         then
             echo "Dummy Echo" > /dev/null
@@ -308,27 +322,28 @@ function conf_dhcp(){
         iface_ip=$(ip -br -4 addr sh | awk '$3 != "127.0.0.1/8" {print $3}')
         if [[ "$iface_ip" == "$srv/24" ]] 
         then
-            yast dhcp-server interface select=$iface > /dev/null # Selecting ethernet adapter with the same IP and setting it as a DHCP default adapter
+            # Selecting ethernet adapter with the same IP and setting it as a DHCP default adapter
+            yast dhcp-server interface select=$iface > /dev/null
         fi
     done
 
     echo -e "${CYAN}Writing informations to config file. Please wait...${NC}"
-    echo "option client-arch code 93 = unsigned integer 16;" > /etc/dhcpd.conf
-    echo "allow booting;" >> /etc/dhcpd.conf
-    echo "allow bootp;" >> /etc/dhcpd.conf
+    echo "option client-arch code 93 = unsigned integer 16;" > /etc/dhcpd.conf      # DHCP specified variable for get information if client has a UEFI or BIOS
+    echo "allow booting;" >> /etc/dhcpd.conf                                        # DHCP specified variable which allows booting via Network
+    echo "allow bootp;" >> /etc/dhcpd.conf                                          # Idk, same as above I guess >_<        
     echo "" >> /etc/dhcpd.conf
-    echo "subnet ${net} netmask ${mask} {" >> /etc/dhcpd.conf
-    echo "  range ${range};" >> /etc/dhcpd.conf
-    echo "  option routers ${gate};" >> /etc/dhcpd.conf
-    echo "  option subnet-mask ${mask};" >> /etc/dhcpd.conf
-    echo "  option domain-name-servers ${dns};" >> /etc/dhcpd.conf
-    echo "  default-lease-time 600;" >> /etc/dhcpd.conf
-    echo "  max-lease-time 7200;" >> /etc/dhcpd.conf
-    echo "  next-server ${next};" >> /etc/dhcpd.conf
-    echo "  if option client-arch != 00:00 {" >> /etc/dhcpd.conf
-    echo '    filename "ipxe.efi";' >> /etc/dhcpd.conf
-    echo "  } else { " >> /etc/dhcpd.conf
-    echo '    filename "undionly.kpxe";' >> /etc/dhcpd.conf
+    echo "subnet ${net} netmask ${mask} {" >> /etc/dhcpd.conf                       # DHCP specified class(???) for our configuration
+    echo "  range ${range};" >> /etc/dhcpd.conf                                     # Range of a DHCP server
+    echo "  option routers ${gate};" >> /etc/dhcpd.conf                             # Gateway address
+    echo "  option subnet-mask ${mask};" >> /etc/dhcpd.conf                         # Subent mask
+    echo "  option domain-name-servers ${dns};" >> /etc/dhcpd.conf                  # DNS Address
+    echo "  default-lease-time 600;" >> /etc/dhcpd.conf                             # Lease time
+    echo "  max-lease-time 7200;" >> /etc/dhcpd.conf                                # Lease time
+    echo "  next-server ${next};" >> /etc/dhcpd.conf                                # Next server address
+    echo "  if option client-arch != 00:00 {" >> /etc/dhcpd.conf                    # DHCP specified if statement. If 'client-arch' is different than "00:00"
+    echo '    filename "ipxe.efi";' >> /etc/dhcpd.conf                              # then iPXE will boot PXE via 'ipxe.efi' file
+    echo "  } else { " >> /etc/dhcpd.conf                                           # but if 'client-arch' equals '00:00'
+    echo '    filename "undionly.kpxe";' >> /etc/dhcpd.conf                         # then iPXE will boot PXE via 'undionly.kpxe' file.
     echo "  }" >> /etc/dhcpd.conf
     echo "}" >> /etc/dhcpd.conf
 
@@ -340,12 +355,17 @@ function conf_dhcp(){
 # TFTP Server Configuration
 function conf_tftp(){
     clear
-    check_tftp # Go to check_tftp function
+
+    check_tftp # Go to *check_tftp* function
+
     echo -e "${BLUE}---------- TFTP CONFIGURATION ----------${NC}"
     echo "TFTP_USER='tftp'" > /etc/sysconfig/tftp
 	echo "TFTP_OPTIONS='--secure'" >> /etc/sysconfig/tftp
 	echo "TFTP_DIRECTORY='${path_tftp}'" >> /etc/sysconfig/tftp
 	echo "TFTP_ADDRESS='0.0.0.0:69'" >> /etc/sysconfig/tftp
+
+    # Nothing much going on here. Only setting 'TFTP_DIRECTORY' as a $path_tftp. Other variables are premade and should not be changed unless
+    # you know what you are doing
 
     echo -en "${GREEN}Everything OK. Press ENTER to continue...${NC}"
     read -n 1 -r -s
@@ -355,31 +375,35 @@ function conf_tftp(){
 # Samba Server Configuration
 function conf_smb(){
     clear
-    check_smb # Go to check_smb function
+
+    check_smb   # Go to *check_smb* function
+    smb_proc=0  # Auxiliary variable for 'while' loop
+
     echo -e "${BLUE}---------- SAMBA CONFIGURATION ----------${NC}"
-    smb_proc=0 # Auxiliary variable for 'while' loop
+
     echo -en "${CYAN}Default share name is 'pxe-files'. Would you like to change it? (Y/N):${NC} "
     read choise
+
     if [ $choise == "Y" ] || [ $choise == "y" ] || [ $choise == "T" ] || [ $choise == "t" ]
     then
         read -p "Enter share name: " usr_smb_name
-        smb_name=$usr_smb_name # Setting Samba share name as $usr_smb_name
+        smb_name=$usr_smb_name          # Setting Samba share name same as $usr_smb_name
     elif [ $choise == "N" ] || [ $choise == "n" ]
     then
-        smb_name="pxe-files" # Setting default Samba share name
+        smb_name="pxe-files"            # Setting default Samba share name
     else
         echo -e "${RED_BOLD}Undefined option! Let's start over...${NC}"
         sleep 3
         conf_smb
     fi
-    echo -e "${CYAN}Writing informations to config file...${NC}"
 
-    echo "[${smb_name}]" > /etc/samba/smb.conf
-    echo "  comment = Samba on PXE Server" >> /etc/samba/smb.conf
-    echo "  path = ${path_smb}" >> /etc/samba/smb.conf
-    echo "  read only = no" >> /etc/samba/smb.conf
-    echo "  browseable = yes" >> /etc/samba/smb.conf
-    echo "  writeable = yes" >> /etc/samba/smb.conf
+    echo -e "${CYAN}Writing informations to config file...${NC}"
+    echo "[${smb_name}]" > /etc/samba/smb.conf                              # Setting share name same as a $smb_name
+    echo "  comment = Samba on PXE Server" >> /etc/samba/smb.conf           # You can change comment in script. It only informs you what it is.
+    echo "  path = ${path_smb}" >> /etc/samba/smb.conf                      # Setting Samba path same as a $path_smb
+    echo "  read only = no" >> /etc/samba/smb.conf                          # 'read only' is set to 'no' so you can exit files while you are connected to a share
+    echo "  browseable = yes" >> /etc/samba/smb.conf                        # 'browseable' is set to 'yes' so you can search your share
+    echo "  writeable = yes" >> /etc/samba/smb.conf                         # 'writeable' is set to 'yes' so you can upload files to your share
 
     # Creating Samba user for access to Samba share - this step is required for Windows 10/11 Installation
     echo -en "${CYAN}If you want samba to work properly, you have to create an user${NC}"
@@ -389,7 +413,7 @@ function conf_smb(){
 
     if id -u "$smb_username" > /dev/null 2>&1
     then
-        while [ $smb_proc != 1 ] # If $smb_proc is different than 1 that means 'smbpasswd' output is an error. 
+        while [ $smb_proc != 1 ]    # If $smb_proc is different than 1 that means 'smbpasswd' output is an error. 
         do    
             smbpasswd -a $smb_username
             if [ $? -ne 0 ]
@@ -398,13 +422,14 @@ function conf_smb(){
                 smb_proc=0
             else
                 echo -en "${CYAN}Please, enter the same password. It'll be used in Windows Automation Script:${NC} "
-                read smb_passwd # This needed for autorun 'setup.exe' file in Windows Automation Script. If you put wrong password, Win PE will automatycally reboot!
-                smb_proc=1 # If $smb_proc is 1 that means everything went well
+                read smb_passwd     # This needed for autorun 'setup.exe' file in Windows Automation Script. If you put wrong password, Win PE will automatycally reboot!
+                smb_proc=1          # If $smb_proc is 1 that means everything went well
             fi
         done
     else
         echo -en "${RED}User ${smb_username} isn't exist in system! Would you like to create new account? (Y/N):${NC} "
         read choise
+
         if [ $choise == "Y" ] || [ $choise == "y" ] || [ $choise == "T" ] || [ $choise == "t" ]
         then
             useradd -m $smb_username
@@ -419,12 +444,13 @@ function conf_smb(){
                 else
                     echo -en "${CYAN}Please, enter the same password. It'll be used in Windows Automation Script:${NC} "
                     read smb_passwd # This needed for autorun 'setup.exe' file in Windows Automation Script. If you put wrong password, Win PE will automatycally reboot!
-                    smb_proc=1 # If $smb_proc is 1 that means everything went well
+                    smb_proc=1      # If $smb_proc is 1 that means everything went well
                 fi
             done
         elif [ $choise == "N" ] || [ $choise == "n" ] || [[ -z $choise ]]
         then
             echo -e "${RED}Can not configure Samba! Please try again!${NC}"
+            conf_smb
         fi
     fi
 
@@ -436,10 +462,13 @@ function conf_smb(){
 # Apache Server Configuration
 function conf_apache(){
     clear
-    check_apache # Go to conf_apache function
+
+    check_apache # Go to *conf_apache* function
+
     echo -e "${BLUE}---------- APACHE CONFIGURATION ----------${NC}"
+
     touch /etc/apache2/vhosts.d/pxe.conf
-    if [ ! -e /etc/apache2/vhosts.d/pxe.conf ]
+    if [ ! -e /etc/apache2/vhosts.d/pxe.conf ] # Checking if 'pxe.conf' file is present in a expected path.
     then
         echo -e "${RED_BOLD}Can not make Apache '.conf' file. Please re-run script and make sure that all packages were successfully downloaded.${NC}"    
         echo -en "${RED_BOLD}Services started. Press ENTER to continue...${NC}"
@@ -448,25 +477,25 @@ function conf_apache(){
     else
         while [ -z $srv_adm_addr ]
         do
-            read -p "Enter your Server Admin Email Address: " srv_adm_addr # Idk for what it's needed but I saw this in tutorial so I putted it there
+            read -p "Enter your Server Admin Email Address: " srv_adm_addr      # Idk for what it's needed but I saw this in tutorial so I putted it there
         done
-        echo "<VirtualHost *:80>" > /etc/apache2/vhosts.d/pxe.conf
-        echo "  ServerAdmin ${srv_adm_addr}" >> /etc/apache2/vhosts.d/pxe.conf
-        echo "  DocumentRoot ${path_apache}" >> /etc/apache2/vhosts.d/pxe.conf
-        echo "</VirtualHost>" >> /etc/apache2/vhosts.d/pxe.conf
+        echo "<VirtualHost *:80>" > /etc/apache2/vhosts.d/pxe.conf              # Creating a new Virtual Host
+        echo "  ServerAdmin ${srv_adm_addr}" >> /etc/apache2/vhosts.d/pxe.conf  # Setting a '$srv_adm_addr' as a 'ServerAdmin'
+        echo "  DocumentRoot ${path_apache}" >> /etc/apache2/vhosts.d/pxe.conf  # Setting a 'path_apache' as a 'DocumentRoot'
+        echo "</VirtualHost>" >> /etc/apache2/vhosts.d/pxe.conf                 # End of creating a Virtual Host
     fi
 
-    if [ ! -e /etc/apache2/httpd.conf ]
+    if [ ! -e /etc/apache2/httpd.conf ] # Checking if 'httpd.conf' file is present in a expected path.
     then
         echo -e "${RED_BOLD}'httpd.conf' is not present.Please re-run script and make sure that all packages were successfully downloaded.${NC}"
         echo -en "${RED_BOLD}Services started. Press ENTER to continue...${NC}"
         read -n 1 -r -s
         exit
     else
-        echo "<Directory />" >> /etc/apache2/httpd.conf
-        echo "  Options +FollowSymLinks +Indexes" >> /etc/apache2/httpd.conf
-        echo "  Require all granted" >> /etc/apache2/httpd.conf
-        echo "</Directory>" >> /etc/apache2/httpd.conf
+        echo "<Directory />" >> /etc/apache2/httpd.conf                         # Creating a new Directory   
+        echo "  Options +FollowSymLinks +Indexes" >> /etc/apache2/httpd.conf    # Couple of options
+        echo "  Require all granted" >> /etc/apache2/httpd.conf                 # Couple of options
+        echo "</Directory>" >> /etc/apache2/httpd.conf                          # End of creating a new Directory
     fi   
 
     echo -en "${GREEN}Everything OK. Press ENTER to continue...${NC}"
@@ -478,10 +507,15 @@ function conf_apache(){
 # NFS Server Configuration
 function conf_nfs(){
     clear
-    check_nfs # Go to check_nfs function
+    
+    check_nfs # Go to *check_nfs* function
+
     echo -e "${BLUE}---------- NFS CONFIGURATION ----------${NC}"
+
     mkdir $path/NFS
+
     echo -e "${CYAN}Writing informations to config file...${NC}"
+
     # Writing '$path/nfs' to exports file. This will be accessible from all PC's with IP from $net network.
     echo "$path/NFS ${net}/${mask}(rw,sync,no_subtree_check)" > /etc/exports
     exportfs -a
@@ -496,44 +530,54 @@ function conf_nfs(){
 # Download and configure iPXE
 function conf_ipxe(){
     clear
+
     check_ipxe # Go to check_ipxe function
+
     echo -e "${BLUE}---------- IPXE CONFIGURATION ----------${NC}"
+
     # REPO SPECIFIED
     echo -e "${CYAN}Cloning iPXE repo. Please wait...${NC}"
-    git clone https://github.com/ipxe/ipxe.git $path/Other/ipxe # Clonning iPXE files to '$path/Other/ipxe'
+    git clone https://github.com/ipxe/ipxe.git $path/Other/ipxe         # Cloning 'iPXE' repo to '$path/Other/ipxe'
     clear
     echo -e "${CYAN}Cloning Wimboot repo. Please wait...${NC}"
-    git clone https://github.com/ipxe/wimboot $path/Other/Wimboot-dir
-    cp $path/Other/Wimboot-dir/wimboot $path/Other
-    rm -R $path/Other/Wimboot-dir
+    git clone https://github.com/ipxe/wimboot $path/Other/Wimboot-dir   # Cloning 'wimboot' repo to '$path/Other/Wimboot-dir'
+    cp $path/Other/Wimboot-dir/wimboot $path/Other                      # Copying only 'wimboot' file to '$path/Other'
+    rm -R $path/Other/Wimboot-dir                                       # Removing a 'Wimboot-dir' directory
+    clear
     # /REPO SPECIFIED
 
     # .h FILES SPECIFIED
-    if [ "${bools[0]}" == "background:TRUE" ]
+    if [ "${bools[0]}" == "background:TRUE" ]   # If earlier user has pressed 'Y' while script was asking to, then script will add support for a background image
     then
         # Writing information to '.h' libraries for background image support
-        sed -i '3i#define CONSOLE_FRAMEBUFFER' $path/Other/ipxe/src/config/console.h
-        sed -i "3i#define IMAGE_PNG" $path/Other/ipxe/src/config/general.h
-        sed -i "4i#define CONSOLE_CMD" $path/Other/ipxe/src/config/general.h
+        sed -i '3i#define CONSOLE_FRAMEBUFFER' $path/Other/ipxe/src/config/console.h        # Inserting '#define CONSOLE_FRAMEBUFFER' to '.h' file
+        sed -i "3i#define IMAGE_PNG" $path/Other/ipxe/src/config/general.h                  # Inserting '#define IMAGE_PNG' to '.h' file
+        sed -i "4i#define CONSOLE_CMD" $path/Other/ipxe/src/config/general.h                # Inserting '#define CONSOLE_CMD' to '.h' file
 
         # Writing informations to '.h' library for NFS download support
-        echo "#define DOWNLOAD_PROTO_NFS" >> $path/Other/ipxe/src/config/local/general.h
+        echo "#define DOWNLOAD_PROTO_NFS" >> $path/Other/ipxe/src/config/local/general.h    # Inserting '#define DOWNLOAD_PROTO_NFS' to '.h' file
     fi
     # /.h FILES SPECIFIED
 
     # EMBED.IPXE SPECIFIED
     echo -e "${CYAN}Creating 'embed.ipxe' file...${NC}"
-    touch $path/Other/ipxe/src/embed.ipxe # 'embed.ipxe' file is a file required for custom build of '.efi' or/and '.kpxe' files. Without this file, you can build only stock build and later you would have to write iPXE commands
+    # 'embed.ipxe' file is required for custom build of '.efi' or/and '.kpxe' files. Without this file, you can build only stock configuration and later you would have to write iPXE commands
+    touch $path/Other/ipxe/src/embed.ipxe
+
     # Writing information to 'embed.ipxe' file
-    echo "#!ipxe" > $path/Other/ipxe/src/embed.ipxe
+    echo "#!ipxe" > $path/Other/ipxe/src/embed.ipxe                                             # Same as in a bash script
     echo "" >> $path/Other/ipxe/src/embed.ipxe
-    echo "dhcp && goto netboot || dhcperror" >> $path/Other/ipxe/src/embed.ipxe
+    echo "dhcp && goto netboot || dhcperror" >> $path/Other/ipxe/src/embed.ipxe                 # Creating targerts. 'dhcp && goto netboot' tells script to first get an IP address from DHCP server and later go to 'netboot' target or if firmware can not access DHCP server then go to 'dhcperror' target
     echo "" >> $path/Other/ipxe/src/embed.ipxe
-    echo ":dhcperror" >> $path/Other/ipxe/src/embed.ipxe
+    echo ":dhcperror" >> $path/Other/ipxe/src/embed.ipxe                                        # 'dhcperror' target
+
+    # If DHCP error occured, user have 10 seconds to press 's' key to open iPXE Shell. If user will miss that, then PC will automatically reboot.
     echo "  prompt --key s --timeout 10000 DHCP Failed. Hit 's' for the iPXE shell; reboot in 10 seconds && shell || reboot" >> $path/Other/ipxe/src/embed.ipxe
     echo "" >> $path/Other/ipxe/src/embed.ipxe
-    echo ":netboot" >> $path/Other/ipxe/src/embed.ipxe
+    echo ":netboot" >> $path/Other/ipxe/src/embed.ipxe                                          # 'netboot' target
+    # This line is telling firmware to connect to a server via TFTP and download a 'main.ipxe' file.
     echo "  chain tftp://${srv}/ipxe-files/main.ipxe ||" >> $path/Other/ipxe/src/embed.ipxe
+    # If netboot error occured, user have 10 seconds to press 's' key to open iPXE Shell. If user will miss that, then PC will automatically reboot.
     echo "  prompt --key s --timeout 10000 Netboot Failed. Hit 's' for the iPXE shell; reboot in 10 seconds && shell || reboot" >> $path/Other/ipxe/src/embed.ipxe
     
     echo -e "${CYAN}Creating 'ipxe.efi' file and 'undionly.kpxe' file. Please wait...${NC}"
@@ -541,24 +585,20 @@ function conf_ipxe(){
     if [ $(pwd) != $path/Other/ipxe/src ]
     then
         cd $path/Other/ipxe/src
-        make bin-x86_64-efi/ipxe.efi EMBED=embed.ipxe 2>&1 | pv -l > $path/make-efi.log # 'pv' command informs us that script isn't stuck
-        mv bin-x86_64-efi/ipxe.efi $path
-        make bin/undionly.kpxe EMBED=embed.ipxe 2>&1 | pv -l > $path/make-kpxe.log      # 'pv' command informs us that script isn't stuck
-        mv bin/undionly.kpxe $path
-    else
-        make bin-x86_64-efi/ipxe.efi EMBED=embed.ipxe 2>&1 | pv -l > $path/make-efi.log # 'pv' command informs us that script isn't stuck
-        mv bin-x86_64-efi/ipxe.efi $path
-        make bin/undionly.kpxe EMBED=embed.ipxe 2>&1 | pv -l > $path/make-kpxe.log      # 'pv' command informs us that script isn't stuck
-        mv bin/undionly.kpxe $path
+        make bin-x86_64-efi/ipxe.efi EMBED=embed.ipxe 2>&1 | pv -l > $path/make-efi.log     # 'pv' command informs us that script isn't stuck
+        mv bin-x86_64-efi/ipxe.efi $path                                                    # moving an 'ipxe.efi'  file to a $path
+        make bin/undionly.kpxe EMBED=embed.ipxe 2>&1 | pv -l > $path/make-kpxe.log          # 'pv' command informs us that script isn't stuck
+        mv bin/undionly.kpxe $path                                                          # moving an 'undionly.kpxe' file to a $path
     fi
     # /EMBED.IPXE SPECIFIED
 
     # MAIN.IPXE SPECIFIED
     echo -e "${CYAN}Checking if expected path is present...${NC}"
-    check_dir_ipxe
+    check_dir_ipxe # Go to 'check_dir_ipxe' funtion
+
     # Creating 'main.ipxe' file where bootloader menu information are 'stored'
     echo -e "${CYAN}Creating 'main.ipxe' file...${NC}"
-    touch $path/ipxe-files/main.ipxe
+    touch $path/ipxe-files/main.ipxe # Creating 'main.ipxe' file in '$path/ipxe-files' path.
 
     if [ ! -e $path/ipxe-files/main.ipxe ]
     then
@@ -573,12 +613,13 @@ function conf_ipxe(){
         # Script is checking if 'bg.png' file is present. It depends on earlier user choise.
         if [ "${bools[0]}" == "background:TRUE" ]
         then
+            # Adding an background image to a bootloader
             echo "console --x 1024 --y 768 --picture http://${srv}/Other/bg.png" >> $path/ipxe-files/main.ipxe 
         fi
 
-        echo ":menu" >> $path/ipxe-files/main.ipxe
-        echo "menu" >> $path/ipxe-files/main.ipxe
-        echo "  item --gap -- -------- iPXE Boot Menu --------" >> $path/ipxe-files/main.ipxe
+        echo ":menu" >> $path/ipxe-files/main.ipxe # Creating 'menu' target
+        echo "menu" >> $path/ipxe-files/main.ipxe  # 'menu' targert
+        echo "  item --gap -- -------- iPXE Boot Menu --------" >> $path/ipxe-files/main.ipxe # Header
 
         # Writing informations to 'menu' tab.
         for index in "${!bools[@]}" # For loop is going through all elements in bools array
@@ -587,13 +628,15 @@ function conf_ipxe(){
             if [ "${bools[$index]}" == "${parts[0]}:TRUE" ]
             then
                 IFS=':' read -ra parts <<< "${bools[$index]}"   # Update parts with the new value from bools
-                echo "  item ${parts[0],,}" "  ${parts[0]}"  >> $path/ipxe-files/main.ipxe
+                # If '${parts[0]}' is TRUE then it's creating a new target called ''${parts[0]}'
+                echo "  item ${parts[0],,}" "  ${parts[0]}"  >> $path/ipxe-files/main.ipxe 
             fi
         done
-
+        # Premade options which can help later if user has a problem.
         echo "  item shell    iPXE Shell" >> $path/ipxe-files/main.ipxe
         echo "  item sett     Network Settings" >> $path/ipxe-files/main.ipxe
         echo "" >> $path/ipxe-files/main.ipxe
+        # This line is going to a specified target selected by client
         echo 'choose --default return --timeout 5000 target && goto ${target}' >> $path/ipxe-files/main.ipxe
         echo "" >> $path/ipxe-files/main.ipxe
 
@@ -604,11 +647,13 @@ function conf_ipxe(){
             if [ "${bools[$index]}" == "${parts[0]}:TRUE" ]
             then
                 IFS=':' read -ra parts <<< "${bools[$index]}"   # Update parts with the new value from bools
+                # If '${parts[0]}' is TRUE then it's creating a new http chain to get informations from '.ipxe' file to boot selected OS.
                 echo ":${parts[0],,}" >> $path/ipxe-files/main.ipxe
                 echo "  chain http://${srv}/ipxe-files/${parts[0]}.ipxe" >> $path/ipxe-files/main.ipxe
             fi
         done
 
+        # Premade options which can help later if user has a problem.
         echo ":shell" >> $path/ipxe-files/main.ipxe
         echo "  shell" >> $path/ipxe-files/main.ipxe
         echo ":sett" >> $path/ipxe-files/main.ipxe
@@ -617,7 +662,6 @@ function conf_ipxe(){
     fi
 
     # Writing informations to '$path/ipxe-files/{target}.ipxe' file.
-
     for index in "${!bools[@]}" # For loop is going through all elements in bools array
     do
         IFS=':' read -ra parts <<< "${bools[$index]}" # This command is splitting values of bools array by ':' character. In bools array there are a name:value types, so i.e if we have a "Windows10:FALSE" then 'Windows10' = name and 'FALSE' = value. So our 'name' = '$parts[0]' and our 'value' = '$parts[1]'.
