@@ -881,10 +881,9 @@ function service_start(){
     firewall-cmd --reload
 
     echo -e "${CYAN}Making $path/nfs writable for reading/saving disk images made with CloneZilla...${NC}"
-    chmod -R 777 $path/nfs > dev/null
-    chown -R nobody:nogroup $path/nfs > /dev/null
+    chmod -R 777 $path/NFS > dev/null
+    chown -R nobody:nogroup $path/NFS > /dev/null
 
-    echo -e "${RED_BOLD}There is nothing to start, because packages haven't been downloaded yet. Try 'Downloading Packages' option in menu and then try again or select 'Full Install' option.${NC}"
     echo -en "${GREEN}Services started. Press ENTER to continue...${NC}"
     read -n 1 -r -s
     config_start
