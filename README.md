@@ -94,14 +94,15 @@ Have a good day and I wish you a lot of Windows installations and disks clones h
 So far so good 😆
 
 # TO DO
-- Find a way to download the latest `.iso` files of Windows 10 and 11 and other OSes/softwares
+- Add 'unattend.xml' file configuration. [IN PROGRESS]
 - Add GUI
 - Add support for Linux Distros
 - Make the script prettier [IN PROGRESS]
 - Migration to Kea DHCP
 - Better DHCP configuration function [IN PROGRESS]
-- Migration to python [IN PROGRESS - I'll make a new repo for this]
 - And things I have no idea about (for now) 😝
+- ~~Find a way to download the latest `.iso` files of Windows 10 and 11 and other OSes/softwares~~ [DROPPED]
+- ~~Migration to python [IN PROGRESS - I'll make a new repo for this]~~ [DROPPED]
 - ~~Find a way to generate `.kpxe` file~~ [DONE]
 - ~~Add [TRUE/FALSE] variables instead of checking if the file exists~~ [DONE]
 - ~~Add more options to PXE such as Hirens, MEMTEST and similar~~ [DONE]
