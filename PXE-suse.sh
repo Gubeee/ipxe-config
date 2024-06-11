@@ -648,6 +648,10 @@ function conf_ipxe(){
             then
                 IFS=':' read -ra parts <<< "${bools[$index]}"   # Update parts with the new value from bools
                 # If '${parts[0]}' is TRUE then it's creating a new http chain to get informations from '.ipxe' file to boot selected OS.
+                if [ "${parts[0],,}" == "background" ]
+                then
+                    echo "Dummy echo" > /dev/null
+                fi
                 echo ":${parts[0],,}" >> $path/ipxe-files/main.ipxe
                 echo "  chain http://${srv}/ipxe-files/${parts[0]}.ipxe" >> $path/ipxe-files/main.ipxe
             fi
@@ -857,72 +861,33 @@ function pack_down(){
 # Starting required services and adding them to autostart
 function service_start(){
     clear
-    if [ $package_down_status == 1 ]
-    then
-        echo -e "${CYAN}Checking if services are working...${NC}"
 
-        # Checking if DHCP service is active
-        if ! systemctl --quiet is-active dhcpd.service
-        then
-            systemctl start dhcpd.service
-            systemctl restart dhcpd.service
-        fi
+    serv=("dhcpd.service" "apache2" "tftp" "smb" "nfs" "nfs-server")
+    fire=("apache2" "http" "dhcp" "nfs" "samba" "tftp")
+    
+    echo -e "${CYAN}Checking if services are working...${NC}"
+    for service in "${serv[@]}" # For loop is going through all elements in bools array
+    do
+        systemctl start "$service"
+        systemctl enable "$service"
+        systemctl restart "$service"
+    done
+    
+    echo "${CYAN}Adding firewall rules for services...${NC}"
+    for rule in "${fire[@]}"
+    do
+        firewall-cmd --zone=public --permanent --add-service="$rule"
+    done
+    firewall-cmd --reload
 
-        # Checking if Apache2 service is active
-        if ! systemctl --quiet is-active apache2
-        then
-            systemctl start apache2
-        fi
+    echo -e "${CYAN}Making $path/nfs writable for reading/saving disk images made with CloneZilla...${NC}"
+    chmod -R 777 $path/nfs > dev/null
+    chown -R nobody:nogroup $path/nfs > /dev/null
 
-        # Cheking if TFPT service is active
-        if ! systemctl --quiet is-active tftp
-        then
-            systemctl start tftp
-        fi
-
-        # Checking if Samba service is active
-        if ! systemctl --quiet is-active smb
-        then
-            systemctl start smb
-        fi
-
-        # Checkign if NFS services are active
-        if ! systemctl --quiet is-active nfs
-        then
-            systemctl start nfs
-        fi
-        if ! systemctl --quiet is-active nfs-server
-        then
-            systemctl start nfs-server
-        fi
-
-        # Adding services to 'autostart'.
-        systemctl enable dhcpd
-        systemctl enable apache2
-        systemctl enable tftp
-        systemctl enable smb
-        systemctl enable nfs
-        systemctl enable nfs-server
-
-        echo "${CYAN}Adding firewall rules for services...${NC}"
-        firewall-cmd --zone=public --permanent --add-service=apache2
-        firewall-cmd --zone=public --permanent --add-service=http
-        firewall-cmd --zone=public --permanent --add-service=dhcp
-        firewall-cmd --zone=public --permanent --add-service=nfs
-        firewall-cmd --zone=public --permanent --add-service=apache2
-        firewall-cmd --zone=public --permanent --add-service=samba
-        firewall-cmd --zone=public --permanent --add-service=tftp
-        firewall-cmd --reload
-
-        echo -e "${CYAN}Making $path/nfs writable for reading/saving disk images made with CloneZilla...${NC}"
-        chmod -R 777 $path/nfs > dev/null
-        chown -R nobody:nogroup $path/nfs > /dev/null
-    else
-        echo -e "${RED_BOLD}There is nothing to start, because packages haven't been downloaded yet. Try 'Downloading Packages' option in menu and then try again or select 'Full Install' option.${NC}"
-        echo -en "${GREEN}Services started. Press ENTER to continue...${NC}"
-        read -n 1 -r -s
-        config_start
-    fi
+    echo -e "${RED_BOLD}There is nothing to start, because packages haven't been downloaded yet. Try 'Downloading Packages' option in menu and then try again or select 'Full Install' option.${NC}"
+    echo -en "${GREEN}Services started. Press ENTER to continue...${NC}"
+    read -n 1 -r -s
+    config_start
 }
 # ------ End of Service Start Function ------
 
