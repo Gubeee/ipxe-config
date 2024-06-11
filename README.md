@@ -95,7 +95,7 @@ So far so good 😆
 
 # TO DO
 - Add GUI
-- Add support for Linux Distros
+- Add support for Linux Distros [IN PROGRESS]
 - Make the script prettier [IN PROGRESS]
 - Migration to Kea DHCP
 - Better DHCP configuration function [IN PROGRESS]
