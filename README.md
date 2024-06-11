@@ -94,11 +94,11 @@ Have a good day and I wish you a lot of Windows installations and disks clones h
 So far so good 😆
 
 # TO DO
-- Add GUI
+- Better DHCP configuration function [IN PROGRESS]
 - Add support for Linux Distros [IN PROGRESS]
 - Make the script prettier [IN PROGRESS]
+- Add GUI
 - Migration to Kea DHCP
-- Better DHCP configuration function [IN PROGRESS]
 - And things I have no idea about (for now) 😝
 - ~~Find a way to download the latest `.iso` files of Windows 10 and 11 and other OSes/softwares~~ [DROPPED]
 - ~~Migration to python [IN PROGRESS - I'll make a new repo for this]~~ [DROPPED]
