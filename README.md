@@ -94,7 +94,6 @@ Have a good day and I wish you a lot of Windows installations and disks clones h
 So far so good 😆
 
 # TO DO
-- Add 'unattend.xml' file configuration. [IN PROGRESS]
 - Add GUI
 - Add support for Linux Distros
 - Make the script prettier [IN PROGRESS]
