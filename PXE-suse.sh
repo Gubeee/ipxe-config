@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# ------ Global Variables ------ 
+# ------ Global Variables ------
 # Paths
 path=""
 path_tftp=""
@@ -39,13 +39,13 @@ BLUE_UNDER='\033[4;34;47m'
 
 NC='\033[0m'
 
-# ------ End of Global Variables ------ 
+# ------ End of Global Variables ------
 
-# ------ Functions ------ 
+# ------ Functions ------
 function check(){
     clear
 
-    path_sh="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)" # Getting path to script, where SHOULD BE stored all of the data (Win10/11 Installation Files, bg.img, etc.). For more information chceck README.md and look on file tree img.
+    path_sh="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)" # Getting path to script, where SHOULD BE stored all of the data (Win10/11 Installation Files, bg.img, etc.). For more information chceck README.md and look for a file tree img.
 
     if [ ! -e '${path_sh}/boot.wim' ] || [ ! -d '${path_sh}/Win10' ] || [ ! -d '${path_sh}/Win11' ] # If in script path those files aren't present, then script is telling user that some files are missing
     then
@@ -546,6 +546,8 @@ function conf_ipxe(){
     clear
     # /REPO SPECIFIED
 
+    git config --global --add safe.directory $path/Other/ipxe
+
     # .h FILES SPECIFIED
     if [ "${bools[0]}" == "background:TRUE" ]   # If earlier user has pressed 'Y' while script was asking to, then script will add support for a background image
     then
@@ -614,6 +616,7 @@ function conf_ipxe(){
         if [ "${bools[0]}" == "background:TRUE" ]
         then
             # Adding an background image to a bootloader
+            cp $path_sh/bg.png $path/Other > /dev/null
             echo "console --x 1024 --y 768 --picture http://${srv}/Other/bg.png" >> $path/ipxe-files/main.ipxe 
         fi
 
@@ -710,7 +713,7 @@ function conf_ipxe(){
     then
         echo "#!ipxe" > $path/ipxe-files/CloneZilla.ipxe
         echo "" >> $path/ipxe-files/CloneZilla.ipxe
-        echo "kernel http://${srv}/Installers/CloneZilla/live/vmlinuz initrd=${path}/Installers/CloneZilla/live/initrd.img boot=live live-config noswap nolocales edd=on nomodeset ocs_daemonon=\"ssh\" ocs_live_run=\"ocs-live-general\" ocs_live_extra_param=\"--batch -g auto -e1 auto -e2 -r -j2 -p reboot restoredisk ask_user sda\" ocs_live_keymap=\"/usr/share/keymaps/i386/qwerty/us.kmap/gz\" ocs_live_batch=\"yes\" ocs_lang=\"en_US.UTF-8\" vga=788 nosplash fetch=${srv}/Installers/Linux/live/filesystem.squashfs ocs_prerun=\"mount -t nfs ${srv}:${path}/nfs /home/partimag"\" >> $path/ipxe-files/CloneZilla.ipxe
+        echo "kernel http://${srv}/Installers/CloneZilla/live/vmlinuz initrd=${path}/Installers/CloneZilla/live/initrd.img boot=live live-config noswap nolocales edd=on nomodeset ocs_daemonon=\"ssh\" ocs_live_run=\"ocs-live-general\" ocs_live_extra_param=\"--batch -g auto -e1 auto -e2 -r -j2 -p reboot restoredisk ask_user sda\" ocs_live_keymap=\"/usr/share/keymaps/i386/qwerty/us.kmap/gz\" ocs_live_batch=\"yes\" ocs_lang=\"en_US.UTF-8\" vga=788 nosplash fetch=${srv}/Installers/CloneZilla/live/filesystem.squashfs ocs_prerun=\"mount -t nfs ${srv}:${path}/nfs /home/partimag"\" >> $path/ipxe-files/CloneZilla.ipxe
         echo "initrd http://${srv}/Installers/CloneZilla/live/initrd.img" >> $path/ipxe-files/CloneZilla.ipxe
         echo "" >> $path/ipxe-files/CloneZilla.ipxe
         echo "boot" >> $path/ipxe-files/CloneZilla.ipxe
@@ -844,6 +847,7 @@ function check_dir_ipxe(){
 function pack_down(){
     clear
     echo -e "${CYAN_BOLD}Refresing and updating zypper...${NC}"
+    zypper --gpg-auto-import-keys ref
     zypper ref
     zypper up -y
     clear
@@ -873,7 +877,7 @@ function service_start(){
         systemctl restart "$service"
     done
     
-    echo "${CYAN}Adding firewall rules for services...${NC}"
+    echo -e "${CYAN}Adding firewall rules for services...${NC}"
     for rule in "${fire[@]}"
     do
         firewall-cmd --zone=public --permanent --add-service="$rule"
@@ -881,7 +885,7 @@ function service_start(){
     firewall-cmd --reload
 
     echo -e "${CYAN}Making $path/nfs writable for reading/saving disk images made with CloneZilla...${NC}"
-    chmod -R 777 $path/NFS > dev/null
+    chmod -R 777 $path/NFS > /dev/null
     chown -R nobody:nogroup $path/NFS > /dev/null
 
     echo -en "${GREEN}Services started. Press ENTER to continue...${NC}"
@@ -921,7 +925,7 @@ function readme_file(){
         export VISUAL="/usr/bin/nano"
         $VISUAL $path_sh/README.md
     else
-        echo "${RED} File 'README.md' doesn't exists!${NC}"
+        echo -e "${RED} File 'README.md' doesn't exists!${NC}"
     fi
 }
 
