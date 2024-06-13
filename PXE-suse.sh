@@ -757,7 +757,7 @@ function conf_ipxe(){
         -H 'sec-ch-ua-platform: "Windows"' -o $path/Installers/MemTest/memtest.iso
     fi
 
-    if [ "${bools[$index]}" == "Ubuntu:TRUE" ]
+    if [ -e $path/ipxe-files/Ubuntu.ipxe ]
     then
         echo "#!ipxe" > $path/ipxe-files/Ubuntu.ipxe
         echo "" >> $path/ipxe-files/Ubuntu.ipxe
@@ -793,7 +793,7 @@ function conf_ipxe(){
         echo "kernel http://${srv}/Installers/OpenSUSE/boot/x86_64/loader/linux root=/dev/ram0 install=https://mirroronet.pl/pub/mirrors/opensuse//distribution/leap/15.6/iso/openSUSE-Leap-15.6-DVD-x86_64-Build709.1-Media.iso ip=dhcp || read void" >> $path/ipxe-files/OpenSUSE.ipxe
         echo "initrd http://${srv}/Installers/OpenSUSE/boot/x86_64/loader/initrd || read void" >> $path/ipxe-files/OpenSUSE.ipxe
         echo "" >> $path/ipxe-files/OpenSUSE.ipxe
-        echo "boot || read void" >> $path/ixpe-files/OpenSUSE
+        echo "boot || read void" >> $path/ipxe-files/OpenSUSE
 
         echo -e "${CYAN}Downloading OpenSUSE Leap .iso file...${NC}"
         curl 'https://mirroronet.pl/pub/mirrors/opensuse//distribution/leap/15.6/iso/openSUSE-Leap-15.6-DVD-x86_64-Build709.1-Media.iso' \
@@ -833,6 +833,74 @@ function conf_ipxe(){
     echo ""
 }
 # ------ End of iPXE Configuration Function ------
+
+# ------ Service Start Function ------
+# Starting required services and adding them to autostart
+function service_start(){
+    clear
+
+    serv=("dhcpd.service" "apache2" "tftp" "smb" "nfs" "nfs-server")
+    fire=("apache2" "http" "dhcp" "nfs" "samba" "tftp")
+    
+    echo -e "${CYAN}Checking if services are working...${NC}"
+    for service in "${serv[@]}" # For loop is going through all elements in bools array
+    do
+        systemctl start "$service"
+        systemctl enable "$service"
+        systemctl restart "$service"
+    done
+    
+    echo -e "${CYAN}Adding firewall rules for services...${NC}"
+    for rule in "${fire[@]}"
+    do
+        firewall-cmd --zone=public --permanent --add-service="$rule"
+    done
+    firewall-cmd --reload
+
+    echo -e "${CYAN}Making $path/nfs writable for reading/saving disk images made with CloneZilla...${NC}"
+    chmod -R 777 $path/NFS > /dev/null
+    chown -R nobody:nogroup $path/NFS > /dev/null
+
+    echo -en "${GREEN}Services started. Press ENTER to continue...${NC}"
+    read -n 1 -r -s
+    config_start
+}
+# ------ End of Service Start Function ------
+
+# Misc options
+# ------ Misc Options Function ------
+function misc_options(){
+    clear
+    echo -e "${BLUE}------ Misc Options ------${NC}"
+    echo -e "1. Open Readme file ${CYAN_UNDER}*RECOMMENDED*${NC}"
+    echo "E. Exit"
+
+    read -p "Select option: " choise
+
+    case $choise in
+        1) readme_file ;;
+        E|e) exit_fn ;;
+        *) invalid_param_misc_options ;;
+    esac
+}
+
+# Exiting script
+function exit_fn(){
+    echo ""
+    echo "Quitting script..."
+    exit
+}
+
+# Opening README file function
+function readme_file(){
+    if [ -e $path_sh/README.md ]
+    then
+        export VISUAL="/usr/bin/nano"
+        $VISUAL $path_sh/README.md
+    else
+        echo -e "${RED} File 'README.md' doesn't exists!${NC}"
+    fi
+}
 
 # ------ File/Path Check Functions ------
 # There are stored all of the functions for checking if config files are exist.
@@ -921,74 +989,6 @@ function pack_down(){
     package_down_status=1
     echo -en "${GREEN}All packages downloaded. Press ENTER to continue...${NC}"
     read -n 1 -r -s
-}
-
-# ------ Service Start Function ------
-# Starting required services and adding them to autostart
-function service_start(){
-    clear
-
-    serv=("dhcpd.service" "apache2" "tftp" "smb" "nfs" "nfs-server")
-    fire=("apache2" "http" "dhcp" "nfs" "samba" "tftp")
-    
-    echo -e "${CYAN}Checking if services are working...${NC}"
-    for service in "${serv[@]}" # For loop is going through all elements in bools array
-    do
-        systemctl start "$service"
-        systemctl enable "$service"
-        systemctl restart "$service"
-    done
-    
-    echo -e "${CYAN}Adding firewall rules for services...${NC}"
-    for rule in "${fire[@]}"
-    do
-        firewall-cmd --zone=public --permanent --add-service="$rule"
-    done
-    firewall-cmd --reload
-
-    echo -e "${CYAN}Making $path/nfs writable for reading/saving disk images made with CloneZilla...${NC}"
-    chmod -R 777 $path/NFS > /dev/null
-    chown -R nobody:nogroup $path/NFS > /dev/null
-
-    echo -en "${GREEN}Services started. Press ENTER to continue...${NC}"
-    read -n 1 -r -s
-    config_start
-}
-# ------ End of Service Start Function ------
-
-# Misc options
-# ------ Misc Options Function ------
-function misc_options(){
-    clear
-    echo -e "${BLUE}------ Misc Options ------${NC}"
-    echo -e "1. Open Readme file ${CYAN_UNDER}*RECOMMENDED*${NC}"
-    echo "E. Exit"
-
-    read -p "Select option: " choise
-
-    case $choise in
-        1) readme_file ;;
-        E|e) exit_fn ;;
-        *) invalid_param_misc_options ;;
-    esac
-}
-
-# Exiting script
-function exit_fn(){
-    echo ""
-    echo "Quitting script..."
-    exit
-}
-
-# Opening README file function
-function readme_file(){
-    if [ -e $path_sh/README.md ]
-    then
-        export VISUAL="/usr/bin/nano"
-        $VISUAL $path_sh/README.md
-    else
-        echo -e "${RED} File 'README.md' doesn't exists!${NC}"
-    fi
 }
 
 # If user choose an invalid parameter in case statement then it's reseting 'config_start' function
