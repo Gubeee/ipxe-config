@@ -15,7 +15,7 @@ smb_username=""
 smb_passwd=""
 
 # Booleans
-bools=("background:FALSE" "Windows10:FALSE" "Windows11:FALSE" "CloneZilla:FALSE" "MemTest:FALSE")
+bools=("background:FALSE" "Windows10:FALSE" "Windows11:FALSE" "CloneZilla:FALSE" "MemTest:FALSE" "Ubuntu:FALSE" "OpenSUSE:FALSE")
 
 # Misc
 srv="" # PXE Server IP Address
@@ -755,6 +755,68 @@ function conf_ipxe(){
         -H 'sec-ch-ua: "Chromium";v="124", "Google Chrome";v="124", "Not-A.Brand";v="99"' \
         -H 'sec-ch-ua-mobile: ?0' \
         -H 'sec-ch-ua-platform: "Windows"' -o $path/Installers/MemTest/memtest.iso
+    fi
+
+    if [ "${bools[$index]}" == "Ubuntu:TRUE" ]
+    then
+        echo "#!ipxe" > $path/ipxe-files/Ubuntu.ipxe
+        echo "" >> $path/ipxe-files/Ubuntu.ipxe
+        echo "kernel http://${srv}/Installers/Ubuntu/casper/vmlinuz root=/dev/ram0 url=https://releases.ubuntu.com/focal/ubuntu-20.04.6-desktop-amd64.iso ip=dhcp || read void" >> $path/ipxe-files/Ubuntu.ipxe
+        echo "initrd http://${srv}/Installers/Ubuntu/casper/initrd || read void" >> $path/ipxe-files/Ubuntu.ipxe
+        echo "" >> $path/ipxe-files/Ubuntu.ipxe
+        echo "boot || read void" >> $path/ixpe-files/Ubuntu
+
+        echo -e "${CYAN}Downloading Ubuntu 24.04 .iso file...${NC}"
+        curl 'http://releases.ubuntu.com/noble/ubuntu-24.04-desktop-amd64.iso' \
+        -H 'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7' \
+        -H 'Accept-Language: pl,en;q=0.9,en-GB;q=0.8,en-US;q=0.7' \
+        -H 'Connection: keep-alive' \
+        -H 'Cookie: _ga_EBCMJZG58E=GS1.2.1712897762.2.0.1712897762.60.0.0; _vwo_uuid_v2=DCB5834B0BAE81A0E7DFCB9422FAB312F|1724d73808af39530ef940082baa6ca0; _gid=GA1.2.442312048.1718098013; __gtm_referrer=https%3A%2F%2Fwww.google.com%2F; _gcl_au=1.1.1880230484.1718098013; _mkto_trk=id:066-EOV-335&token:_mch-ubuntu.com-1718098015321-57943; _ce.irv=new; cebs=1; _CEFT=Q%3D%3D%3D; _ce.clock_event=1; _ce.clock_data=-4363%2C5.226.98.3%2C1%2Ce95fb8733ac3417b3aa284b34753f35d%2CEdge%2CPL; cebsp_=7; _ga=GA1.2.2086458117.1710413291; _ce.s=v~3bf6f3a7b3846458efca7d9b5de04077b471afd9~lcw~1718195286782~lva~1718098015541~vpv~0~v11.cs~30754~v11.s~fe5fdec0-28a7-11ef-933a-d96a941dd9b2~v11.sla~1718189619072~gtrk.la~lxbt4071~v11.send~1718195291080~lcw~1718195291080; _ga_5LTL1CNEJM=GS1.1.1718195291.6.0.1718195291.60.0.0; _ga_PGQQ61N4N6=GS1.1.1718195291.6.0.1718195291.0.0.0' \
+        -H 'Referer: http://releases.ubuntu.com/noble/' \
+        -H 'Upgrade-Insecure-Requests: 1' \
+        -H 'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36 Edg/125.0.0.0' \
+        --insecure -o $path/Ubuntu.iso
+
+        echo -e "${CYAN}Mounting iso and copying required files...${NC}"
+        mount $path/Ubuntu.iso /mnt
+        echo -e "${CYAN}Copying files...${NC}"
+        rsync -a --info=progress2 /mnt/casper/vmlinuz $path/Installers/Ubuntu
+        rsync -a --info=progress2 /mnt/casper/initrd $path/Installers/Ubuntu
+        umount /mnt
+        rm -R $path/Ubuntu.iso
+    fi
+
+    if [ "${bools[$index]}" == "OpenSUSE:TRUE" ]
+    then
+        echo "#!ipxe" > $path/ipxe-files/OpenSUSE.ipxe
+        echo "" >> $path/ipxe-files/OpenSUSE.ipxe
+        echo "kernel http://${srv}/Installers/OpenSUSE/boot/x86_64/loader/linux root=/dev/ram0 install=https://mirroronet.pl/pub/mirrors/opensuse//distribution/leap/15.6/iso/openSUSE-Leap-15.6-DVD-x86_64-Build709.1-Media.iso ip=dhcp || read void" >> $path/ipxe-files/OpenSUSE.ipxe
+        echo "initrd http://${srv}/Installers/OpenSUSE/boot/x86_64/loader/initrd || read void" >> $path/ipxe-files/OpenSUSE.ipxe
+        echo "" >> $path/ipxe-files/OpenSUSE.ipxe
+        echo "boot || read void" >> $path/ixpe-files/OpenSUSE
+
+        echo -e "${CYAN}Downloading OpenSUSE Leap .iso file...${NC}"
+        curl 'https://mirroronet.pl/pub/mirrors/opensuse//distribution/leap/15.6/iso/openSUSE-Leap-15.6-DVD-x86_64-Build709.1-Media.iso' \
+        -H 'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7' \
+        -H 'Accept-Language: pl,en;q=0.9,en-GB;q=0.8,en-US;q=0.7' \
+        -H 'Connection: keep-alive' \
+        -H 'Referer: https://download.opensuse.org/' \
+        -H 'Sec-Fetch-Dest: document' \
+        -H 'Sec-Fetch-Mode: navigate' \
+        -H 'Sec-Fetch-Site: cross-site' \
+        -H 'Sec-Fetch-User: ?1' \
+        -H 'Upgrade-Insecure-Requests: 1' \
+        -H 'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36 Edg/125.0.0.0' \
+        -H 'sec-ch-ua: "Microsoft Edge";v="125", "Chromium";v="125", "Not.A/Brand";v="24"' \
+        -H 'sec-ch-ua-mobile: ?0' \
+        -H 'sec-ch-ua-platform: "Windows"' -o $path/suse.iso
+
+        echo -e "${CYAN}Mounting iso and copying required files...${NC}"
+        mount $path/suse.iso /mnt
+        echo -e "${CYAN}Copying files...${NC}"
+        rsync -a --info=progress2 /mnt/boot $path/Installers/OpenSUSE
+        umount /mnt
+        rm -R $path/suse.iso
     fi
 
     # Copying 'boot.wim' file to PXE root folder
