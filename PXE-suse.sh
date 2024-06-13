@@ -25,17 +25,12 @@ package_down_status=0 # Checking if packages have been downloaded or not
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 CYAN='\033[0;36m'
-BLUE='\033[0;34;47m'
+BLUE='\033[0;34;47m' # With a white background
 
 RED_BOLD='\033[1;31m'
-GREEN_BOLD='\033[1;32m'
 CYAN_BOLD='\033[1;36m'
-BLUE_BOLD='\033[1;34;47m'
 
-RED_UNDER='\033[4;31m'
-GREEN_UNDER='\033[4;32m'
 CYAN_UNDER='\033[4;36m'
-BLUE_UNDER='\033[4;34;47m'
 
 NC='\033[0m'
 
