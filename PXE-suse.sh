@@ -814,7 +814,7 @@ function conf_ipxe(){
         echo -e "${CYAN}Mounting iso and copying required files...${NC}"
         mount $path/suse.iso /mnt
         echo -e "${CYAN}Copying files...${NC}"
-        rsync -a --info=progress2 /mnt/boot $path/Installers/OpenSUSE
+        rsync -a --info=progress2 /mnt/* $path/Installers/OpenSUSE
         umount /mnt
         rm -R $path/suse.iso
     fi
