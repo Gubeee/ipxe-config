@@ -764,7 +764,7 @@ function conf_ipxe(){
         echo "kernel http://${srv}/Installers/Ubuntu/casper/vmlinuz root=/dev/ram0 url=https://releases.ubuntu.com/focal/ubuntu-20.04.6-desktop-amd64.iso ip=dhcp || read void" >> $path/ipxe-files/Ubuntu.ipxe
         echo "initrd http://${srv}/Installers/Ubuntu/casper/initrd || read void" >> $path/ipxe-files/Ubuntu.ipxe
         echo "" >> $path/ipxe-files/Ubuntu.ipxe
-        echo "boot || read void" >> $path/ixpe-files/Ubuntu
+        echo "boot || read void" >> $path/ipxe-files/Ubuntu
 
         echo -e "${CYAN}Downloading Ubuntu 24.04 .iso file...${NC}"
         curl 'http://releases.ubuntu.com/noble/ubuntu-24.04-desktop-amd64.iso' \
