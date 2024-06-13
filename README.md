@@ -91,25 +91,7 @@ I think that's all. One more time - if you have any questions - feel free to ask
 Have a good day and I wish you a lot of Windows installations and disks clones haha.
 
 # KNOWN ISSUES
-So far so good 😆
+(All issues are here!)[https://github.com/Gubeee/ipxe-config/issues?q=is%3Aopen+is%3Aissue+label%3Aissue]
 
 # TO DO
-- Better DHCP configuration function [IN PROGRESS]
-- Make the script prettier [IN PROGRESS]
-- Migration to Kea DHCP
-- And things I have no idea about (for now) 😝
-- ~~Find a way to download the latest `.iso` files of Windows 10 and 11 and other OSes/softwares~~ [DROPPED]
-- ~~Migration to python [IN PROGRESS - I'll make a new repo for this]~~ [DROPPED]
-- ~~Add GUI~~ [DROPPED]
-- ~~Add support for Linux Distros~~ [DONE]
-- ~~Find a way to generate `.kpxe` file~~ [DONE]
-- ~~Add [TRUE/FALSE] variables instead of checking if the file exists~~ [DONE]
-- ~~Add more options to PXE such as Hirens, MEMTEST and similar~~ [DONE]
-- ~~git clone only the README file or check if in same path as `.sh` there is `.md` file or smth~~ [DONE]
-- ~~Checking if samba username is present in system - if not then script will ask for creating new account~~ [DONE]
-
-# OLDER ISSUES
-~~As you could see in the [Overview](#overview) there is one package missing in openSUSE - `isolinux`. What does it mean? You won't be able to generate `undionly.kpxe` file which is required to run iPXE on BIOS systems. If you want to do that, you have to use (rpi4cluster)[https://rpi4cluster.com/ipxe/] guide using Ubuntu (I know that package exists there) and then copy that file. Maybe in the future I'll find a way to make that file but now I don't have time and knowledge how to do this.~~
-- ~~The custom Samba share name doensn't work~~
-- ~~iPXE can't load due to a background image - so if you don't need a background image skip this step~~
-- ~~Generating Windows `.ipxe` file is broken (idk why, it was working earlier 🤔)~~
+(All things to do are here!)[https://github.com/Gubeee/ipxe-config/issues?q=is%3Aopen+is%3Aissue+label%3Atodo]
