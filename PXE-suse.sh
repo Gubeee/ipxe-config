@@ -756,18 +756,18 @@ function conf_ipxe(){
     then
         echo "#!ipxe" > $path/ipxe-files/Ubuntu.ipxe
         echo "" >> $path/ipxe-files/Ubuntu.ipxe
-        echo "kernel http://${srv}/Installers/Ubuntu/vmlinuz root=/dev/ram0 url=https://releases.ubuntu.com/focal/ubuntu-20.04.6-desktop-amd64.iso ip=dhcp || read void" >> $path/ipxe-files/Ubuntu.ipxe
+        echo "kernel http://${srv}/Installers/Ubuntu/vmlinuz root=/dev/ram0 netboot=http url=https://releases.ubuntu.com/focal/ubuntu-20.04.6-desktop-amd64.iso ip=dhcp || read void" >> $path/ipxe-files/Ubuntu.ipxe
         echo "initrd http://${srv}/Installers/Ubuntu/initrd || read void" >> $path/ipxe-files/Ubuntu.ipxe
         echo "" >> $path/ipxe-files/Ubuntu.ipxe
         echo "boot || read void" >> $path/ipxe-files/Ubuntu
 
         echo -e "${CYAN}Downloading Ubuntu 24.04 .iso file...${NC}"
-        curl 'http://releases.ubuntu.com/noble/ubuntu-24.04-desktop-amd64.iso' \
+        curl 'http://releases.ubuntu.com/focal/ubuntu-20.04.6-desktop-amd64.iso' \
         -H 'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7' \
         -H 'Accept-Language: pl,en;q=0.9,en-GB;q=0.8,en-US;q=0.7' \
         -H 'Connection: keep-alive' \
-        -H 'Cookie: _ga_EBCMJZG58E=GS1.2.1712897762.2.0.1712897762.60.0.0; _vwo_uuid_v2=DCB5834B0BAE81A0E7DFCB9422FAB312F|1724d73808af39530ef940082baa6ca0; _gid=GA1.2.442312048.1718098013; __gtm_referrer=https%3A%2F%2Fwww.google.com%2F; _gcl_au=1.1.1880230484.1718098013; _mkto_trk=id:066-EOV-335&token:_mch-ubuntu.com-1718098015321-57943; _ce.irv=new; cebs=1; _CEFT=Q%3D%3D%3D; _ce.clock_event=1; _ce.clock_data=-4363%2C5.226.98.3%2C1%2Ce95fb8733ac3417b3aa284b34753f35d%2CEdge%2CPL; cebsp_=7; _ga=GA1.2.2086458117.1710413291; _ce.s=v~3bf6f3a7b3846458efca7d9b5de04077b471afd9~lcw~1718195286782~lva~1718098015541~vpv~0~v11.cs~30754~v11.s~fe5fdec0-28a7-11ef-933a-d96a941dd9b2~v11.sla~1718189619072~gtrk.la~lxbt4071~v11.send~1718195291080~lcw~1718195291080; _ga_5LTL1CNEJM=GS1.1.1718195291.6.0.1718195291.60.0.0; _ga_PGQQ61N4N6=GS1.1.1718195291.6.0.1718195291.0.0.0' \
-        -H 'Referer: http://releases.ubuntu.com/noble/' \
+        -H 'Cookie: _ga_EBCMJZG58E=GS1.2.1712897762.2.0.1712897762.60.0.0; _vwo_uuid_v2=DCB5834B0BAE81A0E7DFCB9422FAB312F|1724d73808af39530ef940082baa6ca0; __gtm_referrer=https%3A%2F%2Fwww.google.com%2F; _gcl_au=1.1.1880230484.1718098013; _mkto_trk=id:066-EOV-335&token:_mch-ubuntu.com-1718098015321-57943; _ce.irv=new; cebs=1; _CEFT=Q%3D%3D%3D; cebsp_=7; _ga=GA1.2.2086458117.1710413291; _ce.s=v~3bf6f3a7b3846458efca7d9b5de04077b471afd9~lcw~1718195286782~lva~1718098015541~vpv~0~v11.cs~30754~v11.s~fe5fdec0-28a7-11ef-933a-d96a941dd9b2~v11.sla~1718189619072~gtrk.la~lxbt4071~v11.send~1718195291080~lcw~1718195291080; _ga_5LTL1CNEJM=GS1.1.1718195291.6.0.1718195291.60.0.0; _ga_PGQQ61N4N6=GS1.1.1718195291.6.0.1718195291.0.0.0' \
+        -H 'Referer: http://releases.ubuntu.com/focal/' \
         -H 'Upgrade-Insecure-Requests: 1' \
         -H 'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36 Edg/125.0.0.0' \
         --insecure -o $path/Ubuntu.iso
