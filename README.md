@@ -91,7 +91,7 @@ I think that's all. One more time - if you have any questions - feel free to ask
 Have a good day and I wish you a lot of Windows installations and disks clones haha.
 
 # KNOWN ISSUES
-(All issues are here!)[https://github.com/Gubeee/ipxe-config/issues?q=is%3Aopen+is%3Aissue+label%3Aissue]
+[All issues are here!](https://github.com/Gubeee/ipxe-config/issues?q=is%3Aopen+is%3Aissue+label%3Aissue)
 
 # TO DO
-(All things to do are here!)[https://github.com/Gubeee/ipxe-config/issues?q=is%3Aopen+is%3Aissue+label%3Atodo]
+[All things to do are here!](https://github.com/Gubeee/ipxe-config/issues?q=is%3Aopen+is%3Aissue+label%3Atodo)
