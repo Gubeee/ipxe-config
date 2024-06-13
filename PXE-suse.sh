@@ -700,7 +700,7 @@ function conf_ipxe(){
                     echo "net use \\\\$srv\\$smb_name /user:${smb_username} ${smb_passwd}" >> $path/Installers/$win/install.bat
                     echo "\\\\$srv\\$smb_name\Installers\\${win}\\setup.exe" >> $path/Installers/$win/install.bat
 
-                    echo -e "${CYAN}Copying installation files to ${win} folder..."
+                    echo -e "${CYAN}Copying installation files to ${win} folder...${NC}"
                     rsync -a --info=progress2 $path_sh/Win10/* $path/Installers/$win
                 done
                 ;;
@@ -790,7 +790,7 @@ function conf_ipxe(){
     then
         echo "#!ipxe" > $path/ipxe-files/OpenSUSE.ipxe
         echo "" >> $path/ipxe-files/OpenSUSE.ipxe
-        echo "kernel http://${srv}/Installers/OpenSUSE/boot/x86_64/loader/linux root=/dev/ram0 install=https://mirroronet.pl/pub/mirrors/opensuse//distribution/leap/15.6/iso/openSUSE-Leap-15.6-DVD-x86_64-Build709.1-Media.iso ip=dhcp || read void" >> $path/ipxe-files/OpenSUSE.ipxe
+        echo "kernel http://${srv}/Installers/OpenSUSE/boot/x86_64/loader/linux root=/dev/ram0 install=http://${srv}/Installers/OpenSUSE ip=dhcp || read void" >> $path/ipxe-files/OpenSUSE.ipxe
         echo "initrd http://${srv}/Installers/OpenSUSE/boot/x86_64/loader/initrd || read void" >> $path/ipxe-files/OpenSUSE.ipxe
         echo "" >> $path/ipxe-files/OpenSUSE.ipxe
         echo "boot || read void" >> $path/ipxe-files/OpenSUSE
