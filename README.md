@@ -1,5 +1,5 @@
 # WHAT'S NEW?
-(06.2024) Dropped support for Hiren's because I can't check if it works or no. Re-writed code for better clarity. Added minor changes.  
+(06.2024) Dropped support for Hiren's because I can't check if it works or no. Re-writed code for better clarity. Added minor changes. Added support for openSUSE and Ubuntu installation.
 (05.2024) Added support for Memtest and Hiren's [BIOS ONLY!]. If you want to add support for other softwares please let me know! (If you want to use this version simply download .tmp file and then rename it to `PXE-openSUSE.sh`) Couldn't check if Hiren's is working due to small amount of RAM. Added `if` which check if username provided in samba config exist in the os.
 
 # OVERVIEW
@@ -95,13 +95,13 @@ So far so good 😆
 
 # TO DO
 - Better DHCP configuration function [IN PROGRESS]
-- Add support for Linux Distros [IN PROGRESS]
 - Make the script prettier [IN PROGRESS]
 - Add GUI
 - Migration to Kea DHCP
 - And things I have no idea about (for now) 😝
 - ~~Find a way to download the latest `.iso` files of Windows 10 and 11 and other OSes/softwares~~ [DROPPED]
 - ~~Migration to python [IN PROGRESS - I'll make a new repo for this]~~ [DROPPED]
+- ~~Add support for Linux Distros~~ [DONE]
 - ~~Find a way to generate `.kpxe` file~~ [DONE]
 - ~~Add [TRUE/FALSE] variables instead of checking if the file exists~~ [DONE]
 - ~~Add more options to PXE such as Hirens, MEMTEST and similar~~ [DONE]
