@@ -101,10 +101,10 @@ function config_start(){
     read -p "Select one option: " choise
 
     # Case for choose which option is chosen by user
-    case $choise in 
+    case $choise in
         1) full_install ;;                      # Starting full installation process *Recommended*
         D|d) pack_down ;;                       # Downloading packages
-        S|s) service_start ;;                   # Starting Services 
+        S|s) service_start ;;                   # Starting Services
         E|e) exit_fn ;;                         # Exiting Script
         *) invalid_param_config_start ;;        # Invalid Parameter Function
     esac
@@ -125,7 +125,7 @@ function full_install(){
     conf_smb        # Go to *samba_config* function
     conf_apache     # Go to *apache_config* function
 
-    if [ -d $path/Installers/CloneZilla ] 
+    if [ -d $path/Installers/CloneZilla ]
     then
         conf_nfs    # Go to *nfs_config* function
     fi
@@ -153,7 +153,7 @@ function pxe_tree(){
         path=$usr_path          # Setting usr_path as root directory of PXE server files
     elif [ $choise == "N" ] || [ $choise == "n" ] || [[ -z $choise ]]
         then
-            path="/pxe-boot"    # Setting default path as root directory of PXE server files 
+            path="/pxe-boot"    # Setting default path as root directory of PXE server files
     else
         echo -e "${RED_BOLD}Undefined option! Let's start over...${NC}"
         sleep 3
@@ -163,7 +163,7 @@ function pxe_tree(){
     echo -e "${GREEN}Setting ${path} as a default path for all servers. Please wait...${NC}"
     path_tftp=$path         # Setting $path as a TFTP server path.
     path_apache=$path       # Setting $path as a Apache2 server path.
-    path_smb=$path          # Setting $path as a Samba server path. 
+    path_smb=$path          # Setting $path as a Samba server path.
     path_nfs=$path          # Setting $path as a NFS server path.
 
     # Creating default folders in $path
@@ -223,7 +223,7 @@ function conf_dhcp(){
         read -p "Enter a network address: " net
         if [[ $net =~ ^([01]?[0-9][0-9]?|2[0-4][0-9]|25[0-5])\.([01]?[0-9][0-9]?|2[0-4][0-9]|25[0-5])\.([01]?[0-9][0-9]?|2[0-4][0-9]|25[0-5])\.0$ ]]
         then
-            echo "Dummy Echo" > /dev/null 
+            echo "Dummy Echo" > /dev/null
         else
             echo -e "${RED_BOLD}Invalid IP.${NC}"
             net=""
@@ -240,7 +240,7 @@ function conf_dhcp(){
         read -e -p "Enter a gateway address: " -i "$net_cut." gate
         if [[ $gate =~ ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$ ]]
         then
-            echo "Dummy Echo" > /dev/null 
+            echo "Dummy Echo" > /dev/null
         else
             echo -e "${RED_BOLD}Invalid address.${NC}"
             gate=""
@@ -253,7 +253,7 @@ function conf_dhcp(){
         read -e -p "Enter a server address: " -i "$net_cut."  srv
         if [[ $srv =~ ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])$ ]]
         then
-            echo "Dummy Echo" > /dev/null 
+            echo "Dummy Echo" > /dev/null
         else
             echo -e "${RED_BOLD}Invalid address.${NC}"
             srv=""
@@ -306,7 +306,7 @@ function conf_dhcp(){
         dns="8.8.8.8"
     else
         echo -e "${RED_BOLD}Undefined option! Let's start over...${NC}"
-    fi 
+    fi
 
     # 'next-server' IP address = server address
     next=$srv
@@ -315,7 +315,7 @@ function conf_dhcp(){
     for iface in $(ip -br -4 addr sh | awk '$3 != "127.0.0.1/8" {print $1}')
     do
         iface_ip=$(ip -br -4 addr sh | awk '$3 != "127.0.0.1/8" {print $3}')
-        if [[ "$iface_ip" == "$srv/24" ]] 
+        if [[ "$iface_ip" == "$srv/24" ]]
         then
             # Selecting ethernet adapter with the same IP and setting it as a DHCP default adapter
             yast dhcp-server interface select=$iface > /dev/null
@@ -325,7 +325,7 @@ function conf_dhcp(){
     echo -e "${CYAN}Writing informations to config file. Please wait...${NC}"
     echo "option client-arch code 93 = unsigned integer 16;" > /etc/dhcpd.conf      # DHCP specified variable for get information if client has a UEFI or BIOS
     echo "allow booting;" >> /etc/dhcpd.conf                                        # DHCP specified variable which allows booting via Network
-    echo "allow bootp;" >> /etc/dhcpd.conf                                          # Idk, same as above I guess >_<        
+    echo "allow bootp;" >> /etc/dhcpd.conf                                          # Idk, same as above I guess >_<
     echo "" >> /etc/dhcpd.conf
     echo "subnet ${net} netmask ${mask} {" >> /etc/dhcpd.conf                       # DHCP specified class(???) for our configuration
     echo "  range ${range};" >> /etc/dhcpd.conf                                     # Range of a DHCP server
@@ -408,8 +408,8 @@ function conf_smb(){
 
     if id -u "$smb_username" > /dev/null 2>&1
     then
-        while [ $smb_proc != 1 ]    # If $smb_proc is different than 1 that means 'smbpasswd' output is an error. 
-        do    
+        while [ $smb_proc != 1 ]    # If $smb_proc is different than 1 that means 'smbpasswd' output is an error.
+        do
             smbpasswd -a $smb_username
             if [ $? -ne 0 ]
             then
@@ -429,8 +429,8 @@ function conf_smb(){
         then
             useradd -m $smb_username
 
-            while [ $smb_proc != 1 ] # If $smb_proc is different than 1 that means 'smbpasswd' output is an error. 
-            do    
+            while [ $smb_proc != 1 ] # If $smb_proc is different than 1 that means 'smbpasswd' output is an error.
+            do
                 smbpasswd -a $smb_username
                 if [ $? -ne 0 ]
                 then
@@ -465,7 +465,7 @@ function conf_apache(){
     touch /etc/apache2/vhosts.d/pxe.conf
     if [ ! -e /etc/apache2/vhosts.d/pxe.conf ] # Checking if 'pxe.conf' file is present in a expected path.
     then
-        echo -e "${RED_BOLD}Can not make Apache '.conf' file. Please re-run script and make sure that all packages were successfully downloaded.${NC}"    
+        echo -e "${RED_BOLD}Can not make Apache '.conf' file. Please re-run script and make sure that all packages were successfully downloaded.${NC}"
         echo -en "${RED_BOLD}Services started. Press ENTER to continue...${NC}"
         read -n 1 -r -s
         exit
@@ -487,11 +487,11 @@ function conf_apache(){
         read -n 1 -r -s
         exit
     else
-        echo "<Directory />" >> /etc/apache2/httpd.conf                         # Creating a new Directory   
+        echo "<Directory />" >> /etc/apache2/httpd.conf                         # Creating a new Directory
         echo "  Options +FollowSymLinks +Indexes" >> /etc/apache2/httpd.conf    # Couple of options
         echo "  Require all granted" >> /etc/apache2/httpd.conf                 # Couple of options
         echo "</Directory>" >> /etc/apache2/httpd.conf                          # End of creating a new Directory
-    fi   
+    fi
 
     echo -en "${GREEN}Everything OK. Press ENTER to continue...${NC}"
     read -n 1 -r -s
@@ -502,7 +502,7 @@ function conf_apache(){
 # NFS Server Configuration
 function conf_nfs(){
     clear
-    
+
     check_nfs # Go to *check_nfs* function
 
     echo -e "${BLUE}---------- NFS CONFIGURATION ----------${NC}"
@@ -576,7 +576,7 @@ function conf_ipxe(){
     echo "  chain tftp://${srv}/ipxe-files/main.ipxe ||" >> $path/Other/ipxe/src/embed.ipxe
     # If netboot error occured, user have 10 seconds to press 's' key to open iPXE Shell. If user will miss that, then PC will automatically reboot.
     echo "  prompt --key s --timeout 10000 Netboot Failed. Hit 's' for the iPXE shell; reboot in 10 seconds && shell || reboot" >> $path/Other/ipxe/src/embed.ipxe
-    
+
     echo -e "${CYAN}Creating 'ipxe.efi' file and 'undionly.kpxe' file. Please wait...${NC}"
     # Checking if script is in expected path, if not then it's changing directory
     if [ $(pwd) != $path/Other/ipxe/src ]
@@ -599,7 +599,7 @@ function conf_ipxe(){
 
     if [ ! -e $path/ipxe-files/main.ipxe ]
     then
-        echo -e "${RED_BOLD}Can not write information to 'main.ipxe' file because it's missing. Please re-run script and make sure that all packages were successfully downloaded."        
+        echo -e "${RED_BOLD}Can not write information to 'main.ipxe' file because it's missing. Please re-run script and make sure that all packages were successfully downloaded."
         echo -en "${RED_BOLD}Press ENTER to continue...${NC}"
         read -n 1 -r -s
         exit
@@ -612,7 +612,7 @@ function conf_ipxe(){
         then
             # Adding an background image to a bootloader
             cp $path_sh/bg.png $path/Other > /dev/null
-            echo "console --x 1024 --y 768 --picture http://${srv}/Other/bg.png" >> $path/ipxe-files/main.ipxe 
+            echo "console --x 1024 --y 768 --picture http://${srv}/Other/bg.png" >> $path/ipxe-files/main.ipxe
         fi
 
         echo ":menu" >> $path/ipxe-files/main.ipxe # Creating 'menu' target
@@ -627,7 +627,7 @@ function conf_ipxe(){
             then
                 IFS=':' read -ra parts <<< "${bools[$index]}"   # Update parts with the new value from bools
                 # If '${parts[0]}' is TRUE then it's creating a new target called ''${parts[0]}'
-                echo "  item ${parts[0],,}" "  ${parts[0]}"  >> $path/ipxe-files/main.ipxe 
+                echo "  item ${parts[0],,}" "  ${parts[0]}"  >> $path/ipxe-files/main.ipxe
             fi
         done
         # Premade options which can help later if user has a problem.
@@ -836,7 +836,7 @@ function service_start(){
 
     serv=("dhcpd.service" "apache2" "tftp" "smb" "nfs" "nfs-server")
     fire=("apache2" "http" "dhcp" "nfs" "samba" "tftp")
-    
+
     echo -e "${CYAN}Checking if services are working...${NC}"
     for service in "${serv[@]}" # For loop is going through all elements in bools array
     do
@@ -844,7 +844,7 @@ function service_start(){
         systemctl enable "$service"
         systemctl restart "$service"
     done
-    
+
     echo -e "${CYAN}Adding firewall rules for services...${NC}"
     for rule in "${fire[@]}"
     do
