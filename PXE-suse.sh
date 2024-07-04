@@ -32,7 +32,7 @@ CYAN_BOLD='\033[1;36m'
 
 CYAN_UNDER='\033[4;36m'
 
-NC='\033[0m'
+NC='\033[0m' # 'No Color' - setting default color
 
 # ------ End of Global Variables ------
 
